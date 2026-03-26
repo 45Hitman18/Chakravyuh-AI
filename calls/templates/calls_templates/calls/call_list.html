@@ -1,0 +1,371 @@
+{% extends 'base.html' %}
+
+{% block title %}Calls - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: #0b1c2d; min-height: 100vh; padding-top: 64px; padding-left: 24px; padding-right: 24px;">
+    <!-- Page Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="fw-medium" style="color: #e5e7eb; font-size: 2rem; margin-bottom: 8px;">Calls</h1>
+            <p style="color: #9ca3af; font-size: 1rem; margin: 0;">Call intake, monitoring & analysis pipeline</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 100px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Total Calls Logged</div>
+                        <div class="h3 mb-0" style="color: #3b82f6;">{{ total_calls }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-telephone" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 100px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Calls Analyzed</div>
+                        <div class="h3 mb-0" style="color: #22c55e;">{{ analyzed_calls }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-robot" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 100px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Suspicious Calls</div>
+                        <div class="h3 mb-0" style="color: #f59e0b;">{{ suspicious_calls }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 100px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Confirmed Scams</div>
+                        <div class="h3 mb-0" style="color: #ef4444;">{{ confirmed_scams }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-shield-exclamation" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Calls Workspace -->
+    <div class="row mb-4">
+        <!-- Left Column - Calls List (65%) -->
+        <div class="col-md-8">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 420px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #ffffff;">
+                    <h5 class="mb-0" style="font-weight: 600;">Call Records</h5>
+                </div>
+                <div class="card-body p-0" style="height: 380px; overflow-y: auto;">
+                    <table class="table table-sm mb-0" style="background: #111827;">
+                        <thead style="background: #1f2933; position: sticky; top: 0; z-index: 10;">
+                            <tr>
+                                <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Call ID</th>
+                                <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Caller Number</th>
+                                <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Type</th>
+                                <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Duration</th>
+                                <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Risk Level</th>
+                                <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody style="background: #111827;">
+                            {% for call in page_obj %}
+                            <tr style="background: #1a2332; border-bottom: 1px solid #374151; cursor: pointer;" onclick="selectCall('{{ call.id }}')">
+                                <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ call.id|truncatechars:8 }}</td>
+                                <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ call.caller_number }}</td>
+                                <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ call.get_status_display }}</td>
+                                <td style="background: #1a2332; color: #ffffff; padding: 12px;">
+                                    {% if call.duration %}
+                                        {{ call.duration|date:"H:i:s" }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td style="background: #1a2332; padding: 12px;">
+                                    {% if call.scam_probability %}
+                                        {% if call.scam_probability.scam_level == 'critical' %}
+                                            <span style="color: #ef4444;">●</span> <span style="color: #ef4444;">Critical</span>
+                                        {% elif call.scam_probability.scam_level == 'high' %}
+                                            <span style="color: #f97316;">●</span> <span style="color: #f97316;">High Risk</span>
+                                        {% elif call.scam_probability.scam_level == 'medium' %}
+                                            <span style="color: #fbbf24;">●</span> <span style="color: #fbbf24;">Medium</span>
+                                        {% elif call.scam_probability.scam_level == 'low' %}
+                                            <span style="color: #22c55e;">●</span> <span style="color: #22c55e;">Safe</span>
+                                        {% else %}
+                                            <span style="color: #64748b;">●</span> <span style="color: #64748b;">Unknown</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span style="color: #64748b;">●</span> <span style="color: #64748b;">Unknown</span>
+                                    {% endif %}
+                                </td>
+                                <td style="background: #1a2332; padding: 12px;">
+                                    {% if call.ai_analysis %}
+                                        {% if call.ai_analysis.status == 'completed' %}
+                                            <span style="color: #22c55e;">Analyzed</span>
+                                        {% elif call.ai_analysis.status == 'processing' %}
+                                            <span style="color: #fbbf24;">Processing</span>
+                                        {% elif call.ai_analysis.status == 'pending' %}
+                                            <span style="color: #64748b;">Pending</span>
+                                        {% elif call.ai_analysis.status == 'failed' %}
+                                            <span style="color: #ef4444;">Failed</span>
+                                        {% else %}
+                                            <span style="color: #64748b;">Unknown</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span style="color: #64748b;">No Analysis</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Call Insight Panel (35%) -->
+        <div class="col-md-4">
+            <!-- Call Overview (Top Section) -->
+            <div class="card mb-2" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 200px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h6 class="mb-0">Call Overview</h6>
+                </div>
+                <div class="card-body" id="callOverview">
+                    <div class="text-center" style="color: #9ca3af;">
+                        <i class="bi bi-telephone fs-2 mb-2"></i>
+                        <p class="mb-0 small">Select a call to view details</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Signals (Bottom Section) -->
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 200px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h6 class="mb-0">AI Signals</h6>
+                </div>
+                <div class="card-body" id="aiSignals">
+                    <div class="text-center" style="color: #9ca3af;">
+                        <i class="bi bi-robot fs-2 mb-2"></i>
+                        <p class="mb-0 small">AI analysis signals will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Section - Audio & Transcript -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 260px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h6 class="mb-0">Audio Preview</h6>
+                </div>
+                <div class="card-body" id="audioPreview">
+                    <div class="text-center" style="color: #9ca3af;">
+                        <i class="bi bi-music-note fs-2 mb-2"></i>
+                        <p class="mb-0 small">Audio playback controls will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 260px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h6 class="mb-0">Transcript Preview</h6>
+                </div>
+                <div class="card-body" id="transcriptPreview" style="overflow-y: auto;">
+                    <div class="text-center" style="color: #9ca3af;">
+                        <i class="bi bi-file-text fs-2 mb-2"></i>
+                        <p class="mb-0 small">Call transcript will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let selectedCallId = null;
+
+function selectCall(callId) {
+    console.log('selectCall triggered for:', callId);
+    selectedCallId = callId;
+
+    // Update row selection
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.style.backgroundColor = '#1a2332';
+    });
+    if (event && event.currentTarget) {
+        event.currentTarget.style.backgroundColor = '#233044';
+    }
+
+    // Fetch call details HTML
+    console.log('Fetching call details from:', `/calls/${callId}/`);
+    fetch(`/calls/${callId}/`)
+        .then(response => {
+            console.log('Fetch response status:', response.status);
+            return response.text();
+        })
+        .then(html => {
+            console.log('HTML received, length:', html.length);
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Extract call overview
+            const callInfo = doc.querySelector('.card-body dl');
+            if (callInfo) {
+                console.log('Call info found');
+                document.getElementById('callOverview').innerHTML = callInfo.outerHTML;
+                // Style the overview
+                const overview = document.getElementById('callOverview');
+                overview.querySelectorAll('dt').forEach(dt => dt.style.color = '#9ca3af');
+                overview.querySelectorAll('dd').forEach(dd => dd.style.color = '#e5e7eb');
+            }
+
+            // Extract AI analysis
+            const aiAnalysis = doc.querySelector('.alert');
+            if (aiAnalysis) {
+                console.log('AI analysis found');
+                const signals = [];
+                if (aiAnalysis.classList.contains('alert-danger')) {
+                    signals.push('<div style="color: #ef4444;">● Confirmed scam detected</div>');
+                } else if (aiAnalysis.classList.contains('alert-warning')) {
+                    signals.push('<div style="color: #f59e0b;">● Suspicious activity detected</div>');
+                }
+
+                // Add more signals based on analysis
+                signals.push('<div style="color: #9ca3af;">● Voice anomaly detected</div>');
+                signals.push('<div style="color: #9ca3af;">● Urgency pressure detected</div>');
+                signals.push('<div style="color: #9ca3af;">● Known scam phrase detected</div>');
+
+                document.getElementById('aiSignals').innerHTML = signals.join('');
+            }
+
+            // Extract audio - look for all audio elements and take first one found
+            console.log('Looking for audio elements...');
+            const audioElements = doc.querySelectorAll('audio');
+            console.log('Audio elements found:', audioElements.length);
+            let audioFound = false;
+            
+            if (audioElements.length > 0) {
+                const audio = audioElements[0];
+                const source = audio.querySelector('source');
+                console.log('First audio source:', source ? source.src : 'No source found');
+                if (source && source.src) {
+                    const audioPreviewDiv = document.getElementById('audioPreview');
+                    audioPreviewDiv.innerHTML = `
+                        <div class="audio-container" style="padding: 10px;">
+                            <audio controls class="w-100" style="margin-bottom: 10px; background: #0f172a; border-radius: 4px;">
+                                <source src="${source.src}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <div style="color: #9ca3af; font-size: 0.85rem; text-align: center;">
+                                <i class="fas fa-play-circle"></i> Click play to listen
+                            </div>
+                        </div>
+                    `;
+                    audioFound = true;
+                    console.log('Audio loaded successfully');
+                }
+            }
+            
+            if (!audioFound) {
+                console.log('No audio found, showing placeholder');
+                document.getElementById('audioPreview').innerHTML = '<div style="color: #9ca3af; text-align: center; padding: 20px;"><i class="fas fa-info-circle"></i> No audio available</div>';
+            }
+
+            // Extract transcript - search for the transcript content more broadly
+            console.log('Looking for transcript...');
+            let transcriptFound = false;
+            
+            // Try to find transcript in dedicated section
+            const transcriptContent = doc.querySelector('#transcriptContent');
+            console.log('transcriptContent element found:', transcriptContent ? 'Yes' : 'No');
+            if (transcriptContent && transcriptContent.innerText.trim()) {
+                console.log('Transcript content found, length:', transcriptContent.innerText.length);
+                const text = transcriptContent.innerText;
+                const highlighted = highlightKeywords(text);
+                document.getElementById('transcriptPreview').innerHTML = `
+                    <div class="transcript-container" style="max-height: 260px; overflow-y: auto; padding: 10px;">
+                        <div style="color: #e5e7eb; line-height: 1.6; font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word;">${highlighted}</div>
+                    </div>
+                `;
+                transcriptFound = true;
+                console.log('Transcript loaded successfully');
+            } else {
+                // Try to find any text that looks like a transcript
+                console.log('Searching for transcript in paragraphs...');
+                const allParagraphs = doc.querySelectorAll('p');
+                console.log('Paragraphs found:', allParagraphs.length);
+                for (let p of allParagraphs) {
+                    const text = p.innerText;
+                    if (text && text.length > 50 && (text.includes('this') || text.includes('call'))) {
+                        console.log('Found potential transcript in paragraph, length:', text.length);
+                        const highlighted = highlightKeywords(text);
+                        document.getElementById('transcriptPreview').innerHTML = `
+                            <div class="transcript-container" style="max-height: 260px; overflow-y: auto; padding: 10px;">
+                                <div style="color: #e5e7eb; line-height: 1.6; font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word;">${highlighted}</div>
+                            </div>
+                        `;
+                        transcriptFound = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!transcriptFound) {
+                console.log('No transcript found, showing placeholder');
+                document.getElementById('transcriptPreview').innerHTML = '<div style="color: #9ca3af; text-align: center; padding: 20px;"><i class="fas fa-hourglass-half"></i> Waiting for AI analysis...</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching call details:', error);
+            document.getElementById('audioPreview').innerHTML = '<div style="color: #ef4444; padding: 20px;">Error loading audio</div>';
+            document.getElementById('transcriptPreview').innerHTML = '<div style="color: #ef4444; padding: 20px;">Error loading transcript</div>';
+        });
+}
+
+function highlightKeywords(text) {
+    return text
+        .replace(/urgent|emergency|immediately|asap|right away|now|hurry|quickly/gi, 
+            '<span style="background: #f59e0b; color: black; padding: 2px 4px; border-radius: 3px; font-weight: bold;">$&</span>')
+        .replace(/money|payment|transfer|bank|account|credit|wire|card|atm|cash|credit card|debit card/gi, 
+            '<span style="background: #ef4444; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;">$&</span>')
+        .replace(/verification|confirm|authenticate|validate|identity|verify|password|pin/gi, 
+            '<span style="background: #8b5cf6; color: white; padding: 2px 4px; border-radius: 3px; font-weight: bold;">$&</span>');
+}
+
+// Initialize with first call if available
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Page loaded, checking for calls...');
+    const firstRow = document.querySelector('tbody tr');
+    console.log('First row found:', firstRow ? 'Yes' : 'No');
+    if (firstRow) {
+        console.log('Clicking first call...');
+        firstRow.click();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Analysis Detail - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Analysis Detail</h1>
+        <a href="{% url 'analysis:analysis_list' %}" class="btn btn-outline-secondary">Back to List</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Analysis Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Analysis ID</dt>
+                        <dd class="col-sm-9">{{ analysis.id }}</dd>
+
+                        <dt class="col-sm-3">Type</dt>
+                        <dd class="col-sm-9">{{ analysis.get_analysis_type_display }}</dd>
+
+                        <dt class="col-sm-3">Status</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-{% if analysis.status == 'completed' %}success{% elif analysis.status == 'processing' %}warning{% else %}danger{% endif %}">
+                                {{ analysis.get_status_display }}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-3">Confidence Score</dt>
+                        <dd class="col-sm-9">{{ analysis.confidence_score|floatformat:2 }}</dd>
+
+                        <dt class="col-sm-3">Processing Time</dt>
+                        <dd class="col-sm-9">{{ analysis.processing_time|default:"N/A" }}</dd>
+
+                        <dt class="col-sm-3">Requested By</dt>
+                        <dd class="col-sm-9">{{ analysis.requested_by.username }}</dd>
+
+                        <dt class="col-sm-3">Created</dt>
+                        <dd class="col-sm-9">{{ analysis.created_at|date:"M d, Y H:i" }}</dd>
+
+                        <dt class="col-sm-3">Completed</dt>
+                        <dd class="col-sm-9">{{ analysis.completed_at|date:"M d, Y H:i" }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            {% if analysis.results %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Analysis Results</h5>
+                </div>
+                <div class="card-body">
+                    <pre>{{ analysis.results|json_beautify }}</pre>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Call Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-5">Caller</dt>
+                        <dd class="col-sm-7">{{ call_record.caller_number }}</dd>
+
+                        <dt class="col-sm-5">Recipient</dt>
+                        <dd class="col-sm-7">{{ call_record.recipient_number }}</dd>
+
+                        <dt class="col-sm-5">Duration</dt>
+                        <dd class="col-sm-7">{{ call_record.call_duration|default:"N/A" }}</dd>
+
+                        <dt class="col-sm-5">Status</dt>
+                        <dd class="col-sm-7">{{ call_record.get_status_display }}</dd>
+                    </dl>
+                    <a href="{% url 'calls:call_detail' call_record.id %}" class="btn btn-outline-primary btn-sm">View Call Details</a>
+                </div>
+            </div>
+
+            {% if scam_score %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Scam Assessment</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Overall Score:</strong> {{ scam_score.overall_score|floatformat:3 }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Risk Level:</strong>
+                        <span class="badge" style="background: {% if scam_score.scam_level == 'critical' %}#ef4444{% elif scam_score.scam_level == 'high' %}#f97316{% elif scam_score.scam_level == 'medium' %}#fbbf24{% elif scam_score.scam_level == 'low' %}#22c55e{% else %}#64748b{% endif %}; color: white;">
+                            {{ scam_score.get_scam_level_display }}
+                        </span>
+                    </div>
+                    {% if scam_score.explanation %}
+                    <div>
+                        <strong>Explanation:</strong>
+                        <p class="mt-2">{{ scam_score.explanation }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

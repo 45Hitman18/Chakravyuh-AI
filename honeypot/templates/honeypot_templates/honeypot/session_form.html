@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title|default:"Honeypot Session" }} - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="h4 mb-1">{{ title|default:"Honeypot Session" }}</h1>
+            <p class="text-muted mb-0">Configure and start a session</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                {{ config_form.as_p }}
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block title %}Support - Chakravyuh{% endblock %}
+
+{% block extra_head %}
+<style>
+.support-page {
+    background: #0b1220;
+    color: #e2e8f0;
+    min-height: calc(100vh - 120px);
+    padding: 48px 0 64px 0;
+}
+
+.support-hero {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.28), rgba(139, 92, 246, 0.25));
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    border-radius: 16px;
+    padding: 28px 28px;
+    margin-bottom: 24px;
+}
+
+.support-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #ffffff !important;
+    text-shadow: 0 3px 14px rgba(0, 0, 0, 0.6) !important;
+}
+
+.support-subtitle {
+    color: #ffffff !important;
+    font-size: 0.95rem;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.support-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.support-card {
+    background: #0f172a;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+
+.support-card h5 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #ffffff !important;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6) !important;
+}
+
+.support-card p {
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    margin-bottom: 12px;
+}
+
+.support-link {
+    color: #93c5fd;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.support-form {
+    background: #0b1324;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    border-radius: 16px;
+    padding: 22px;
+}
+
+.support-form h5 {
+    color: #ffffff !important;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6) !important;
+}
+
+.support-form label {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+}
+
+.support-form input,
+.support-form textarea,
+.support-form select {
+    background: #0f1a2b;
+    border: 1px solid #1f2937;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+}
+
+.support-form input::placeholder,
+.support-form textarea::placeholder {
+    color: #94a3b8;
+}
+
+.support-form select option {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.support-link,
+.support-card h5 i,
+.support-card h5 {
+    color: #ffffff;
+}
+
+.support-link {
+    color: #7dd3fc;
+}
+
+.support-form input:focus,
+.support-form textarea:focus,
+.support-form select:focus {
+    outline: none;
+    border-color: #7dd3fc;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
+.support-btn {
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .support-page {
+        padding: 32px 0 48px 0;
+    }
+
+    .support-hero {
+        padding: 22px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="support-page">
+    <div class="container">
+        <div class="support-hero">
+            <h1 class="support-title">Support Center</h1>
+            <p class="support-subtitle">Get quick help from our team or browse common solutions.</p>
+        </div>
+
+        <div class="support-grid">
+            <div class="support-card">
+                <h5 style="color:#ADD8E6 !important; text-shadow:0 2px 10px rgba(0,0,0,0.5) !important;"><i class="bi bi-life-preserver me-2"></i>Help Desk</h5>
+                <p>Priority support for account access, incidents, and system issues.</p>
+                <a class="support-link" href="mailto:support@chakravyuh.ai">support@chakravyuh.ai</a>
+            </div>
+            <div class="support-card">
+                <h5 style="color:#ADD8E6 !important; text-shadow:0 2px 10px rgba(0,0,0,0.5) !important;"><i class="bi bi-telephone me-2"></i>24/7 Hotline</h5>
+                <p>Critical incident response line for urgent security events.</p>
+                <a class="support-link" href="tel:+18005551234">+1 (800) 555-1234</a>
+            </div>
+            <div class="support-card">
+                <h5 style="color:#ADD8E6 !important; text-shadow:0 2px 10px rgba(0,0,0,0.5) !important;"><i class="bi bi-question-circle me-2"></i>FAQ</h5>
+                <p>See quick answers to the most common questions.</p>
+                <a class="support-link" href="{% url 'faq' %}">View FAQ</a>
+            </div>
+            <div class="support-card">
+                <h5 style="color:#ADD8E6 !important; text-shadow:0 2px 10px rgba(0,0,0,0.5) !important;"><i class="bi bi-journal-text me-2"></i>Documentation</h5>
+                <p>Guides, API references, and setup instructions.</p>
+                <a class="support-link" href="#">Open Docs</a>
+            </div>
+        </div>
+
+        <div class="support-form">
+            <h5 class="text-white mb-3" style="color:#ADD8E6 !important; text-shadow:0 2px 10px rgba(0,0,0,0.5) !important;">Submit a Support Request</h5>
+            <form>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="supportName" class="form-label">Full Name</label>
+                        <input id="supportName" type="text" class="form-control" placeholder="Your name">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="supportEmail" class="form-label">Work Email</label>
+                        <input id="supportEmail" type="email" class="form-control" placeholder="you@company.com">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="supportType" class="form-label">Issue Type</label>
+                        <select id="supportType" class="form-select">
+                            <option>Account Access</option>
+                            <option>Fraud Detection</option>
+                            <option>Billing</option>
+                            <option>API Integration</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="supportPriority" class="form-label">Priority</label>
+                        <select id="supportPriority" class="form-select">
+                            <option>Normal</option>
+                            <option>High</option>
+                            <option>Critical</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="supportMessage" class="form-label">Message</label>
+                        <textarea id="supportMessage" class="form-control" rows="4" placeholder="Describe your issue"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="support-btn">Send Request</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

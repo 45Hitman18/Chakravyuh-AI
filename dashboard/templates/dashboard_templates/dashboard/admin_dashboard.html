@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Chakravyuh{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Leaflet for Maps -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: #0b1c2d; min-height: 100vh; padding-top: 64px; padding-left: 24px; padding-right: 24px;">
+    <!-- Page Title Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="fw-medium" style="color: #e5e7eb; font-size: 2rem; margin-bottom: 8px;">Admin Dashboard</h1>
+            <p style="color: #9ca3af; font-size: 1rem; margin: 0;">System Overview & Control</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 110px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Total Reports</div>
+                        <div class="h3 mb-0" style="color: #3b82f6;">{{ total_reports }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-file-earmark-text" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 110px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Pending</div>
+                        <div class="h3 mb-0" style="color: #64748b;">{{ pending_reports }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-clock" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 110px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Approved</div>
+                        <div class="h3 mb-0" style="color: #22c55e;">{{ approved_reports }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-check-circle" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 110px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Rejected</div>
+                        <div class="h3 mb-0" style="color: #ef4444;">{{ rejected_reports }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-x-circle" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row mb-4">
+        <!-- Left Column (65%) -->
+        <div class="col-md-8">
+            <!-- Scam Detection Chart -->
+            <div class="card mb-4" style="background: #111827; border: 1px solid #4f46e5; border-radius: 12px;">
+                <div class="card-header" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); border-bottom: 1px solid #4f46e5; color: #ffffff;">
+                    <h5 class="mb-0" style="font-weight: 600;">Scam Detection Overview</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="scamChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Heatmap/Map Section -->
+            <div class="card" style="background: #111827; border: 1px solid #ec4899; border-radius: 12px;">
+                <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); border-bottom: 1px solid #ec4899; color: #ffffff;">
+                    <h5 class="mb-0" style="font-weight: 600;">Scam Activity Heatmap - India</h5>
+                </div>
+                <div class="card-body">
+                    <div id="indiaMap" style="height: 260px; border-radius: 8px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column (35%) -->
+        <div class="col-md-4">
+            <!-- Most Flagged Numbers -->
+            <div class="card mb-4" style="background: #111827; border: 1px solid #f59e0b; border-radius: 12px;">
+                <div class="card-header" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); border-bottom: 1px solid #f59e0b; color: #000000;">
+                    <h5 class="mb-0" style="font-weight: 600;">Most Flagged Numbers</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm mb-0">
+                            <thead style="background: #78350f; position: sticky; top: 0; z-index: 10;">
+                                <tr>
+                                    <th style="color: #fef3c7; border: none; padding: 12px; font-weight: 600;">Number</th>
+                                    <th style="color: #fef3c7; border: none; padding: 12px; font-weight: 600;">Count</th>
+                                    <th style="color: #fef3c7; border: none; padding: 12px; font-weight: 600;">Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for number in flagged_numbers %}
+                                          <tr style="background: #1a2332; border-bottom: 1px solid #374151;">
+                                    <td style="color: #ffffff; padding: 12px;">{{ number.call_record__caller_number }}</td>
+                                    <td style="color: #ffffff; padding: 12px;">{{ number.scam_count }}</td>
+                                    <td style="color: #ffffff; padding: 12px;">
+                                        {% if number.avg_score >= 0.8 %}
+                                            <span style="color: #ef4444;">{{ number.avg_score|floatformat:2 }}</span>
+                                        {% elif number.avg_score >= 0.5 %}
+                                            <span style="color: #fbbf24;">{{ number.avg_score|floatformat:2 }}</span>
+                                        {% else %}
+                                            <span style="color: #9ca3af;">{{ number.avg_score|floatformat:2 }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Honeypot Conversations Preview -->
+            <div class="card" style="background: #111827; border: 1px solid #14b8a6; border-radius: 12px;">
+                <div class="card-header" style="background: linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%); border-bottom: 1px solid #14b8a6; color: #000000;">
+                    <h5 class="mb-0" style="font-weight: 600;">Honeypot Conversations</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                        {% for log in honeypot_logs %}
+                        <div class="list-group-item" style="background: #1a2332; border-bottom: 1px solid #374151; color: #ffffff; padding: 16px;">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="small mb-1" style="color: #ffffff; font-weight: 500;">{{ log.scammer_profile.phone_number|default:log.scammer_number }}</div>
+                                    <div class="small" style="color: #d1d5db;">{{ log.created_at|date:"M d, H:i" }}</div>
+                                    {% if log.scam_type_identified %}
+                                        <span class="badge" style="background: #f59e0b; color: black; font-size: 0.7rem;">{{ log.scam_type_identified }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="ms-2">
+                                    <span class="badge" style="background: {% if log.success_rating >= 0.7 %}#22c55e{% elif log.success_rating >= 0.4 %}#f59e0b{% else %}#ef4444{% endif %}; color: white; font-size: 0.7rem;">
+                                        {{ log.success_rating|floatformat:1 }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                                <div class="text-center py-4" style="background: #1a2332; color: #9ca3af;">
+                            <i class="bi bi-chat-dots fs-2 mb-2"></i>
+                            <p class="mb-0 small">No recent conversations</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Logs & Alerts -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card" style="background: #111827; border: 1px solid #8b5cf6; border-radius: 12px;">
+                <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); border-bottom: 1px solid #8b5cf6; color: #ffffff;">
+                    <h5 class="mb-0" style="font-weight: 600;">Recent System Logs & Alerts</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm mb-0">
+                            <thead style="background: #5b21b6; position: sticky; top: 0;">
+                                <tr>
+                                    <th style="color: #f3e8ff; border: none; padding: 12px; font-weight: 600;">Timestamp</th>
+                                    <th style="color: #f3e8ff; border: none; padding: 12px; font-weight: 600;">Level</th>
+                                    <th style="color: #f3e8ff; border: none; padding: 12px; font-weight: 600;">Component</th>
+                                    <th style="color: #f3e8ff; border: none; padding: 12px; font-weight: 600;">Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in system_logs %}
+                                <tr style="background: #1a2332; border-bottom: 1px solid #374151;">
+                                    <td style="color: #ffffff; padding: 12px;">{{ log.timestamp|date:"M d, H:i:s" }}</td>
+                                    <td style="padding: 12px;">
+                                        <span class="badge" style="background: {% if log.level == 'error' %}#ef4444{% elif log.level == 'warning' %}#f59e0b{% elif log.level == 'info' %}#3b82f6{% else %}#9ca3af{% endif %}; color: white; font-size: 0.7rem;">
+                                            {{ log.level|upper }}
+                                        </span>
+                                    </td>
+                                     <td style="color: #ffffff; padding: 12px;">{{ log.component|title }}</td>
+                                     <td style="color: #ffffff; padding: 12px;">{{ log.message|truncatechars:80 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize scam detection chart
+    const monthlyData = JSON.parse('{{ monthly_stats|escapejs }}');
+    const ctx = document.getElementById('scamChart').getContext('2d');
+
+    // Prepare data
+    const labels = monthlyData.map(d => {
+        const date = new Date(d.month);
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+    });
+    const reportsData = monthlyData.map(d => d.reports);
+    const scamsData = monthlyData.map(d => d.scams);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Reports',
+                data: reportsData,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.1,
+                fill: false
+            }, {
+                label: 'Scams Detected',
+                data: scamsData,
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#9ca3af'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#374151'
+                    },
+                    ticks: {
+                        color: '#9ca3af'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: '#374151'
+                    },
+                    ticks: {
+                        color: '#9ca3af'
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    radius: 3
+                }
+            }
+        }
+    });
+
+    // Initialize India map
+    const map = L.map('indiaMap').setView([20.5937, 78.9629], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add heatmap data
+    const heatmapData = JSON.parse('{{ heatmap_data|escapejs }}');
+
+    if (heatmapData.length === 0) {
+        // Empty state
+        const mapContainer = document.getElementById('indiaMap');
+        mapContainer.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100"><div class="text-center text-muted"><i class="bi bi-geo-alt-fill fs-1 mb-3"></i><p>Heatmap will populate as scam data increases.</p></div></div>';
+        map.remove();
+    } else {
+        heatmapData.forEach(point => {
+            const density = point.count > 10 ? 'high' : point.count > 5 ? 'medium' : 'low';
+            const marker = L.circleMarker([point.lat, point.lng], {
+                color: density === 'high' ? '#ef4444' : density === 'medium' ? '#f59e0b' : '#22c55e',
+                fillColor: density === 'high' ? '#ef4444' : density === 'medium' ? '#f59e0b' : '#22c55e',
+                fillOpacity: 0.6,
+                radius: Math.sqrt(point.count) * 3
+            }).addTo(map);
+
+            marker.bindPopup(`<b>${point.state}</b><br>Scam density: ${density}<br>Reports: ${point.count}`);
+        });
+    }
+});
+</script>
+{% endblock %}

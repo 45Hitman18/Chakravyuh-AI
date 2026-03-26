@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage 2FA - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: #0b1c2d; min-height: 100vh; padding-top: 64px; padding-left: 24px; padding-right: 24px; padding-bottom: 40px;">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 style="color: #e5e7eb; font-size: 28px; margin-bottom: 6px;">
+                    <i class="bi bi-shield-lock me-2"></i>Two-Factor Authentication
+                </h1>
+                <p style="color: #9ca3af; font-size: 14px; margin: 0;">Manage your 2FA devices and security settings</p>
+            </div>
+            <a href="{% url 'accounts:profile' %}" class="btn btn-sm" style="background: #1f2933; color: #e5e7eb; border: 1px solid #374151; padding: 8px 14px; font-weight: 600;">
+                <i class="bi bi-arrow-left me-1"></i> Back to Profile
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="row mb-4">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="background: {% if message.tags == 'success' %}#22c55e20{% elif message.tags == 'error' %}#ef444420{% elif message.tags == 'warning' %}#f59e0b20{% else %}#3b82f520{% endif %}; border: 1px solid {% if message.tags == 'success' %}#22c55e{% elif message.tags == 'error' %}#ef4444{% elif message.tags == 'warning' %}#f59e0b{% else %}#3b82f5{% endif %}; color: {% if message.tags == 'success' %}#22c55e{% elif message.tags == 'error' %}#ef4444{% elif message.tags == 'warning' %}#f59e0b{% else %}#3b82f5{% endif %}; border-radius: 8px;">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(1);"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 2FA Status Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-2" style="color: #e5e7eb;">Two-Factor Authentication Status</h5>
+                            <p style="color: #9ca3af; margin: 0; font-size: 13px;">Two-factor authentication adds an extra layer of security to your account</p>
+                        </div>
+                        <div>
+                            {% if otp_devices %}
+                            <span class="badge" style="background: #22c55e; color: #0b1c2d; padding: 8px 12px; font-size: 0.85rem; font-weight: 600;">
+                                <i class="bi bi-check-circle me-1"></i> ENABLED
+                            </span>
+                            {% else %}
+                            <span class="badge" style="background: #f59e0b; color: #0b1c2d; padding: 8px 12px; font-size: 0.85rem; font-weight: 600;">
+                                <i class="bi bi-exclamation-circle me-1"></i> DISABLED
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row" style="gap: 24px;">
+        <!-- Active Devices Section -->
+        <div class="col" style="flex: 0 0 60%; max-width: 60%;">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); border-bottom: 1px solid #374151; color: #ffffff; border-radius: 11px 11px 0 0;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="bi bi-phone me-2"></i>Active OTP Devices
+                        </h6>
+                        <span class="badge" style="background: #ffffff; color: #8b5cf6; font-size: 0.75rem;">{{ otp_devices|length }} device{{ otp_devices|length|pluralize }}</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if otp_devices %}
+                        <div class="list-group list-group-flush">
+                            {% for device in otp_devices %}
+                            <div class="list-group-item" style="background: #111827; border-bottom: 1px solid #374151; padding: 16px;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div style="color: #e5e7eb; font-weight: 600;">
+                                            <i class="bi bi-check-circle" style="color: #22c55e;"></i> {{ device.name }}
+                                        </div>
+                                        <div style="color: #9ca3af; font-size: 12px; margin-top: 4px;">
+                                            <span>Confirmed</span>
+                                            {% if device.last_t %}
+                                            • Last used: <span style="color: #d1d5db;">today</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <form method="POST" action="{% url 'accounts:remove_2fa_device' device.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove this device? You will need to re-authenticate on other sessions.');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm" style="background: #ef4444; color: #ffffff; border: none; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px;">
+                                            <i class="bi bi-trash me-1"></i> Remove
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    <div style="padding: 24px; text-align: center;">
+                        <div style="font-size: 32px; color: #374151; margin-bottom: 8px;">
+                            <i class="bi bi-shield-exclamation"></i>
+                        </div>
+                        <p style="color: #9ca3af; margin: 0;">No 2FA devices configured</p>
+                        <p style="color: #6b7280; font-size: 12px; margin-top: 4px;">Add a device to enable two-factor authentication for your account</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Add New Device Section -->
+            <div class="card mt-4" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%); border-bottom: 1px solid #374151; color: #0b1c2d; border-radius: 11px 11px 0 0;">
+                    <h6 class="mb-0">
+                        <i class="bi bi-plus-circle me-2"></i>Add New Device
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <p style="color: #9ca3af; font-size: 14px; margin: 0 0 16px 0;">
+                            Use an authenticator app like <strong>Google Authenticator</strong>, <strong>Microsoft Authenticator</strong>, or <strong>Authy</strong> to scan the QR code below and add a new device.
+                        </p>
+                    </div>
+
+                    {% if add_device_form %}
+                    <form method="POST" action="{% url 'accounts:add_2fa_device' %}">
+                        {% csrf_token %}
+                        {{ add_device_form.as_p }}
+                        <button type="submit" class="btn w-100" style="background: #22c55e; color: #0b1c2d; border: none; padding: 10px; font-weight: 600; border-radius: 8px;">
+                            <i class="bi bi-check-circle me-2"></i>Add Device
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-info" style="background: #3b82f520; border: 1px solid #3b82f5; color: #3b82f5; border-radius: 8px;">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <a href="{% url 'accounts:setup_otp' %}" style="color: #3b82f5; text-decoration: underline;">Click here</a> to generate a new QR code and set up 2FA
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Info & Options -->
+        <div class="col" style="flex: 0 0 38%; max-width: 38%;">
+            <!-- Security Tips -->
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; margin-bottom: 24px;">
+                <div class="card-header" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); border-bottom: 1px solid #374151; color: #ffffff; border-radius: 11px 11px 0 0;">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>Security Tips
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <div style="color: #e5e7eb; font-weight: 600; font-size: 13px; margin-bottom: 8px;">
+                            <i class="bi bi-check-circle" style="color: #22c55e;"></i> Best Practices
+                        </div>
+                        <ul style="color: #9ca3af; font-size: 13px; margin: 0; padding-left: 20px;">
+                            <li>Use a unique authenticator app for your accounts</li>
+                            <li>Keep backup codes in a safe place</li>
+                            <li>Don't share your OTP codes with anyone</li>
+                            <li>Update your app when new versions are available</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Settings -->
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); border-bottom: 1px solid #374151; color: #ffffff; border-radius: 11px 11px 0 0;">
+                    <h6 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>Account Options
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% if otp_devices %}
+                        <form method="POST" action="{% url 'accounts:disable_2fa' %}" style="display: contents;" onsubmit="return confirm('Disabling 2FA will reduce your account security. Continue?');">
+                            {% csrf_token %}
+                            <button type="submit" class="list-group-item" style="background: #111827; color: #ef4444; border: none; border-bottom: 1px solid #374151; text-align: left; padding: 16px; cursor: pointer; transition: background 0.2s;">
+                                <div style="font-weight: 600;">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Disable 2FA
+                                </div>
+                                <div style="color: #9ca3af; font-size: 12px; margin-top: 4px;">Remove all devices and turn off two-factor authentication</div>
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        <a href="{% url 'accounts:profile' %}" class="list-group-item" style="background: #111827; color: #e5e7eb; text-decoration: none; border-bottom: 1px solid #374151; padding: 16px; transition: background 0.2s;">
+                            <div style="font-weight: 600;">
+                                <i class="bi bi-person me-2"></i>Back to Profile
+                            </div>
+                            <div style="color: #9ca3af; font-size: 12px; margin-top: 4px;">View your account details</div>
+                        </a>
+
+                        <a href="{% url 'dashboard' %}" class="list-group-item" style="background: #111827; color: #e5e7eb; text-decoration: none; padding: 16px; transition: background 0.2s; border-bottom: 1px solid #374151;">
+                            <div style="font-weight: 600;">
+                                <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                            </div>
+                            <div style="color: #9ca3af; font-size: 12px; margin-top: 4px;">Return to main dashboard</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recovery Codes Info -->
+            {% if otp_devices %}
+            <div class="card mt-4" style="background: #111827; border: 1px solid #f59e0b; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <div style="color: #f59e0b; margin-bottom: 8px;">
+                        <i class="bi bi-info-circle me-2"></i><strong>Recovery Codes</strong>
+                    </div>
+                    <p style="color: #9ca3af; font-size: 13px; margin: 0;">
+                        Store your recovery codes in a secure location. They can be used to access your account if you lose access to your authenticator app.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .list-group-item:hover {
+        background: #1f2933 !important;
+    }
+    
+    .btn-sm:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}

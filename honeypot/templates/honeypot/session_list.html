@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Honeypot Sessions - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="h4 mb-1">Honeypot Sessions</h1>
+            <p class="text-muted mb-0">All honeypot sessions</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if page_obj %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>Session</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Start</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in page_obj %}
+                                <tr>
+                                    <td>{{ session.session_name }}</td>
+                                    <td>{{ session.phone_number }}</td>
+                                    <td>{{ session.get_status_display }}</td>
+                                    <td>{{ session.start_time|date:"Y-m-d H:i" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No sessions yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

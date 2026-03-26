@@ -1,0 +1,511 @@
+{% extends 'base.html' %}
+
+{% block title %}Honeypot Intelligence - Law Enforcement{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet for Maps -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* Honeypot Law Enforcement Styles */
+.honeypot-le {
+    background-color: #0b1c2d;
+    color: #e5e7eb;
+    min-height: 100vh;
+}
+
+.covert-bar {
+    height: 56px;
+    background-color: #0b1c2d;
+    border-bottom: 1px solid #374151;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.covert-bar .title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e5e7eb;
+}
+
+.restricted-badge {
+    background-color: #374151;
+    color: #f59e0b;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.refresh-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #22c55e;
+    border-radius: 50%;
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.metrics-row {
+    height: 110px;
+    display: flex;
+    gap: 16px;
+    padding: 16px 24px;
+    background-color: #111827;
+}
+
+.metric-card {
+    flex: 1;
+    background-color: #1f2933;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.metric-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e5e7eb;
+    margin-bottom: 4px;
+}
+
+.metric-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-align: center;
+}
+
+.metric-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-bottom: 4px;
+}
+
+.dot-green { background-color: #22c55e; }
+.dot-blue { background-color: #3b82f6; }
+.dot-amber { background-color: #f59e0b; }
+.dot-red { background-color: #ef4444; }
+
+.main-content {
+    display: flex;
+    padding: 24px;
+    gap: 24px;
+    background-color: #111827;
+}
+
+.live-activity {
+    flex: 3;
+    background-color: #111827;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.live-activity-header {
+    padding: 16px;
+    border-bottom: 1px solid #374151;
+    font-size: 16px;
+    font-weight: 600;
+    color: #e5e7eb;
+}
+
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.activity-table th,
+.activity-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #374151;
+    color: #e5e7eb;
+    font-size: 14px;
+}
+
+.activity-table th {
+    background-color: #1f2933;
+    font-weight: 600;
+    color: #9ca3af;
+}
+
+.activity-table tbody tr:hover {
+    background-color: #1f2933;
+}
+
+.risk-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.intelligence-panel {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.transcript-section,
+.tactic-section {
+    background-color: #111827;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.section-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #374151;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e5e7eb;
+}
+
+.transcript-content {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.transcript-message {
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #1f2933;
+    font-size: 13px;
+    color: #e5e7eb;
+}
+
+.transcript-message.scammer {
+    border-left: 3px solid #f59e0b;
+}
+
+.transcript-message.agent {
+    border-left: 3px solid #3b82f6;
+}
+
+.scam-highlight {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.tactic-content {
+    padding: 16px;
+}
+
+.tactic-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+.tactic-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    opacity: 0.6;
+}
+
+.tactic-detected .tactic-icon {
+    color: #ef4444;
+}
+
+.bottom-section {
+    display: flex;
+    padding: 24px;
+    gap: 24px;
+    background-color: #111827;
+}
+
+.origin-insight,
+.ai-feedback {
+    flex: 1;
+    background-color: #111827;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.origin-map {
+    height: 220px;
+}
+
+.origin-list {
+    padding: 16px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.origin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #374151;
+    font-size: 14px;
+    color: #e5e7eb;
+}
+
+.origin-item:last-child {
+    border-bottom: none;
+}
+
+.ai-feedback-content {
+    padding: 16px;
+    height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.ai-feedback-text {
+    font-size: 16px;
+    color: #9ca3af;
+    margin-bottom: 8px;
+}
+
+.ai-feedback-highlight {
+    font-size: 18px;
+    font-weight: bold;
+    color: #3b82f6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1440px) {
+    .main-content,
+    .bottom-section {
+        flex-direction: column;
+    }
+
+    .live-activity,
+    .intelligence-panel,
+    .origin-insight,
+    .ai-feedback {
+        flex: none;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="honeypot-le">
+    <!-- Top Covert Bar -->
+    <div class="covert-bar">
+        <div class="title">Honeypot Control</div>
+        <div class="restricted-badge">restricted</div>
+        <div class="refresh-indicator" title="Auto-refresh active"></div>
+    </div>
+
+    <!-- Metrics Row -->
+    <div class="metrics-row">
+        <div class="metric-card">
+            <div class="metric-dot dot-green"></div>
+            <div class="metric-number">{{ active_sessions|length }}</div>
+            <div class="metric-label">Active Traps</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-dot dot-blue"></div>
+            <div class="metric-number">{{ total_interactions }}</div>
+            <div class="metric-label">Interactions Captured</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-dot dot-amber"></div>
+            <div class="metric-number">{{ high_risk_sessions }}</div>
+            <div class="metric-label">High-Risk Sessions</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-dot dot-red"></div>
+            <div class="metric-number">{{ ai_learning_feeds }}</div>
+            <div class="metric-label">AI Learning Feeds</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Live Honeypot Activity -->
+        <div class="live-activity">
+            <div class="live-activity-header">Live Honeypot Activity</div>
+            <table class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Session ID</th>
+                        <th>Source Number</th>
+                        <th>Duration</th>
+                        <th>Detected Intent</th>
+                        <th>Risk Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for interaction in recent_interactions %}
+                    <tr>
+                        <td>{{ interaction.honeypot_session.id|truncatechars:8 }}</td>
+                        <td>{{ interaction.scammer_number }}</td>
+                        <td>
+                            {% if interaction.duration %}
+                                {{ interaction.duration|date:"H:i:s" }}
+                            {% else %}
+                                Active
+                            {% endif %}
+                        </td>
+                        <td>{{ interaction.scam_type_identified|default:"Unknown" }}</td>
+                        <td>
+                            {% if interaction.scammer_profile and interaction.scammer_profile.risk_score >= 0.7 %}
+                                <span class="risk-dot" style="background-color: #ef4444;"></span>High
+                            {% elif interaction.scammer_profile and interaction.scammer_profile.risk_score >= 0.4 %}
+                                <span class="risk-dot" style="background-color: #f59e0b;"></span>Medium
+                            {% else %}
+                                <span class="risk-dot" style="background-color: #22c55e;"></span>Low
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Conversation Intelligence Panel -->
+        <div class="intelligence-panel">
+            <!-- Transcript Preview -->
+            <div class="transcript-section">
+                <div class="section-header">Conversation Intelligence</div>
+                <div class="transcript-content">
+                    {% if recent_interactions %}
+                        {% for message in recent_interactions.0.conversation_transcript|slice:":5" %}
+                        <div class="transcript-message {{ message.sender }}">
+                            <strong>{{ message.sender|title }}:</strong> {{ message.message }}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="transcript-message">
+                            No recent conversations available.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tactic Detection -->
+            <div class="tactic-section">
+                <div class="section-header">Tactic Detection</div>
+                <div class="tactic-content">
+                    <div class="tactic-item {% if 'impersonation' in recent_interactions.0.extracted_information %}tactic-detected{% endif %}">
+                        <i class="bi bi-person-badge tactic-icon"></i>
+                        Impersonation
+                    </div>
+                    <div class="tactic-item {% if 'urgency' in recent_interactions.0.extracted_information %}tactic-detected{% endif %}">
+                        <i class="bi bi-clock tactic-icon"></i>
+                        Urgency Pressure
+                    </div>
+                    <div class="tactic-item {% if 'otp' in recent_interactions.0.extracted_information %}tactic-detected{% endif %}">
+                        <i class="bi bi-key tactic-icon"></i>
+                        OTP Harvesting
+                    </div>
+                    <div class="tactic-item {% if 'payment' in recent_interactions.0.extracted_information %}tactic-detected{% endif %}">
+                        <i class="bi bi-credit-card tactic-icon"></i>
+                        Payment Redirection
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="bottom-section">
+        <!-- Origin Insight -->
+        <div class="origin-insight">
+            <div class="section-header">Origin Insight</div>
+            <div id="originMap" class="origin-map"></div>
+        </div>
+
+        <!-- AI Learning Feedback -->
+        <div class="ai-feedback">
+            <div class="section-header">AI Learning Feedback</div>
+            <div class="ai-feedback-content">
+                <div class="ai-feedback-text">
+                    Honeypot data increased scam detection confidence by
+                </div>
+                <div class="ai-feedback-highlight">
+                    +14%
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize origin map
+    const map = L.map('originMap', {
+        scrollWheelZoom: false,
+        touchZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        doubleClickZoom: true,
+        dragging: true,
+        tap: false,
+        gestureHandling: false
+    }).setView([20.5937, 78.9629], 4);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: false,
+        maxZoom: 8,
+        minZoom: 3
+    }).addTo(map);
+
+    const originPoints = JSON.parse('{{ origin_points|default:"[]"|escapejs }}');
+
+    if (originPoints.length === 0) {
+        const mapContainer = document.getElementById('originMap');
+        mapContainer.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100"><div class="text-center text-muted"><i class="bi bi-geo-alt-fill fs-1 mb-3"></i><p>Origin insight will populate as location data becomes available.</p></div></div>';
+        map.remove();
+    } else {
+        originPoints.forEach(point => {
+            const intensity = Math.min((point.count || 1) / 20, 1);
+            const color = `rgba(239, 68, 68, ${0.3 + intensity * 0.7})`;
+
+            L.circleMarker([point.lat, point.lng], {
+                color: '#ef4444',
+                fillColor: color,
+                fillOpacity: 0.8,
+                radius: Math.max(5, Math.sqrt(point.count || 1) * 2),
+                weight: 1
+            }).addTo(map).bindPopup(`
+                <div style="color: #0b1c2d; font-size: 12px;">
+                    <strong>${point.state}</strong><br>
+                    Interactions: ${point.count}
+                </div>
+            `);
+        });
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(function() {
+        location.reload();
+    }, 30000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,480 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chakravyuh - Advanced Cybersecurity Platform for Phone Scam Detection and Fraud Prevention">
+    <meta name="keywords" content="cybersecurity, phone scams, fraud detection, AI analysis, scam prevention">
+    <meta name="author" content="Chakravyuh Team">
+
+    <title>Chakravyuh - Advanced Cybersecurity for Phone Scam Detection</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}?v=20241231">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Landing page specific styles for professional blue theme */
+        body { color: #4b5563; line-height: 1.6; }
+        h1, h2, h3, h4, h5, h6 { color: #2563eb !important; background: none !important; -webkit-background-clip: unset !important; -webkit-text-fill-color: unset !important; background-clip: unset !important; }
+        .lead { color: #c7d9eb !important; }
+        .text-primary { color: #2563eb !important; }
+        .text-danger { color: #dc2626 !important; }
+        .text-info { color: #2563eb !important; }
+        .text-success { color: #16a34a !important; }
+        .text-warning { color: #f59e0b !important; }
+        .text-muted { color: #4b5563 !important; }
+        .bg-primary { background: #2563eb !important; }
+        .bg-success { background: #16a34a !important; }
+        .bg-warning { background: #f59e0b !important; }
+        .bg-info { background: #2563eb !important; }
+        .bg-danger { background: #dc2626 !important; }
+        .btn-primary { background: #2563eb !important; color: #ffffff !important; border: none !important; }
+        .btn-primary:hover { background: #1e40af !important; }
+        .navbar-dark .nav-link { color: #dbe7f3 !important; }
+        .navbar-dark .nav-link:hover { color: #4da3ff !important; }
+        .card { background: #ffffff !important; border: 1px solid rgba(0,0,0,0.05) !important; }
+        .card-title { color: #0b1c2d !important; }
+        .card-text { color: #4b5563 !important; }
+        #problem { background: #ffffff !important; }
+        #problem h2 { color: #0b1c2d !important; border-bottom: 2px solid #2563eb; padding-bottom: 0.5rem; }
+        #problem .text-muted { color: #4b5563 !important; line-height: 1.7; }
+        #solution { background: #f4f7fb !important; }
+        #solution h2 { color: #0b1c2d !important; }
+        #solution .text-muted { color: #6b7280 !important; }
+        .card:hover i.bi { color: #1e40af !important; }
+        #how-it-works { background: #ffffff !important; }
+        #how-it-works h2, #how-it-works h5 { color: #0b1c2d !important; }
+        #how-it-works p { color: #4b5563 !important; }
+        .btn-light { background: #2563eb !important; color: #ffffff !important; border: none !important; }
+        .btn-outline-light { background: transparent !important; border: 2px solid #2563eb !important; color: #2563eb !important; }
+        .btn-outline-light:hover { background: #eaf2ff !important; color: #1e40af !important; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: #0b1c2d; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="#home">
+                <img src="{% static 'images/new.png' %}" alt="Chakravyuh Logo" width="45" height="45" class="me-2" style="object-fit: contain;">
+                <span style="font-family: 'Rajdhani', 'Orbitron', 'Arial Black', sans-serif; font-weight: 800; font-size: 1.3rem; letter-spacing: 3px; text-transform: uppercase; color: #ffffff; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);">Chakravyuh</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#problem">Problem</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#solution">Solution</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary ms-2" href="{% url 'accounts:register' %}">Get Started</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section text-white py-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0b1c2d, #123a6f); min-height: 100vh; display: flex; align-items: center;">
+        <!-- Animated Background Elements -->
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="z-index: 1;">
+            <div class="floating-shield position-absolute animate__animated animate__pulse animate__infinite animate__slow" style="top: 10%; left: 10%; opacity: 0.1;">
+                <i class="bi bi-shield-check-fill fs-1 text-white"></i>
+            </div>
+            <div class="floating-robot position-absolute animate__animated animate__bounce animate__delay-1s animate__infinite animate__slow" style="top: 20%; right: 15%; opacity: 0.1;">
+                <i class="bi bi-robot fs-1 text-white"></i>
+            </div>
+            <div class="floating-graph position-absolute animate__animated animate__shakeX animate__delay-2s animate__infinite animate__slow" style="bottom: 20%; left: 15%; opacity: 0.1;">
+                <i class="bi bi-graph-up-arrow fs-1 text-white"></i>
+            </div>
+            <div class="floating-lock position-absolute animate__animated animate__tada animate__delay-3s animate__infinite animate__slow" style="bottom: 10%; right: 10%; opacity: 0.1;">
+                <i class="bi bi-lock-fill fs-1 text-white"></i>
+            </div>
+        </div>
+
+        <div class="container position-relative" style="z-index: 2;">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInUp">
+                        Protect Against Phone Scams with <span class="text-white">AI-Powered Detection</span>
+                    </h1>
+                    <p class="lead mb-4 animate__animated animate__fadeInUp animate__delay-0.5s">
+                        Chakravyuh uses advanced artificial intelligence to detect and prevent phone scams in real-time, protecting individuals and organizations from fraudulent activities.
+                    </p>
+                    <div class="d-flex gap-3 flex-wrap animate__animated animate__fadeInUp animate__delay-1s">
+                        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4 py-3 fw-semibold shadow-lg hover-lift">
+                            <i class="bi bi-rocket-takeoff me-2"></i>Get Started Free
+                        </a>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold shadow-lg hover-lift">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login to Dashboard
+                        </a>
+                    </div>
+                    <div class="mt-4 animate__animated animate__fadeInUp animate__delay-1.5s">
+                        <small class="text-white-50">
+                            <i class="bi bi-shield-check me-1"></i>No credit card required • 14-day free trial
+                        </small>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="text-center animate__animated animate__fadeInRight animate__delay-1s">
+                        <!-- Dynamic Dashboard Mockup -->
+                        <div class="position-relative mx-auto" style="max-width: 500px;">
+                            <!-- Main Dashboard Card -->
+                            <div class="card border-0 shadow-lg mb-3" style="background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%); backdrop-filter: blur(10px);">
+                                <div class="card-header text-white border-0" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 50%, #003d82 100%);">
+                                    <h6 class="mb-0" style="color: #ffffff !important;"><i class="bi bi-shield-check me-2"></i>Chakravyuh Security Dashboard</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <!-- Stats Row -->
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <div class="p-2 rounded" style="background: #16a34a; color: white;">
+                                                <div class="fs-4 fw-bold">99.5%</div>
+                                                <small>Detection Rate</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="p-2 rounded" style="background: #2563eb; color: white;">
+                                                <div class="fs-4 fw-bold">24/7</div>
+                                                <small>Monitoring</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Activity Feed -->
+                                    <div class="activity-feed">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="activity-dot me-2" style="background: #16a34a;"></div>
+                                            <small class="text-muted">Call from +1-555-0123 analyzed - Safe</small>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="activity-dot me-2" style="background: #f59e0b;"></div>
+                                            <small class="text-muted">Suspicious pattern detected - Reviewing</small>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="activity-dot me-2" style="background: #dc2626;"></div>
+                                            <small class="text-muted">Scam call blocked - User protected</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section id="problem" class="py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="display-5 fw-bold mb-4">The Growing Threat of Phone Scams</h2>
+                    <p class="lead text-muted mb-5">
+                        Every year, millions of people lose billions of dollars to sophisticated phone scams. Traditional security measures are no longer enough.
+                    </p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-lg hover-lift" style="border-left: 4px solid var(--fiery-red);">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-graph-up-arrow text-danger fs-1 animate__animated animate__pulse animate__infinite"></i>
+                            </div>
+                            <h5 class="card-title fw-bold text-dark">Rising Losses</h5>
+                            <p class="card-text text-dark">
+                                Phone scams cost victims over $40 billion annually in the US alone, with losses increasing year over year.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-lg hover-lift" style="border-left: 4px solid var(--golden-yellow);">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-people-fill text-warning fs-1 animate__animated animate__bounce animate__delay-0.5s"></i>
+                            </div>
+                            <h5 class="card-title fw-bold text-dark">Vulnerable Targets</h5>
+                            <p class="card-text text-dark">
+                                Scammers target everyone - from elderly individuals to large corporations, using increasingly sophisticated tactics.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-lg hover-lift" style="border-left: 4px solid var(--electric-blue);">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-shield-x text-info fs-1 animate__animated animate__shakeX animate__delay-1s"></i>
+                            </div>
+                            <h5 class="card-title fw-bold text-dark">Inadequate Protection</h5>
+                            <p class="card-text text-dark">
+                                Current solutions lack real-time analysis and fail to detect emerging scam patterns and techniques.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section id="solution" class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="display-5 fw-bold mb-4">Our Comprehensive Solution</h2>
+                    <p class="lead text-muted mb-5">
+                        Chakravyuh combines cutting-edge AI technology with expert analysis to provide unparalleled protection against phone scams.
+                    </p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-lg hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-robot text-primary fs-1"></i>
+                            </div>
+                            <h6 class="card-title fw-bold">AI-Powered Analysis</h6>
+                            <p class="card-text text-dark small">
+                                Advanced machine learning algorithms analyze call patterns, voice signatures, and conversation content.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-lg hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-lightning-charge text-primary fs-1"></i>
+                            </div>
+                            <h6 class="card-title fw-bold">Real-Time Detection</h6>
+                            <p class="card-text text-dark small">
+                                Instant analysis during calls with immediate alerts for suspicious activities and patterns.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-lg hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-database-check text-primary fs-1"></i>
+                            </div>
+                            <h6 class="card-title fw-bold">Comprehensive Database</h6>
+                            <p class="card-text text-dark small">
+                                Extensive database of known scam patterns, phone numbers, and fraudulent tactics updated daily.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-lg hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <i class="bi bi-shield-check text-primary fs-1"></i>
+                            </div>
+                            <h6 class="card-title fw-bold">Expert Verification</h6>
+                            <p class="card-text text-dark small">
+                                Human experts review and verify AI detections, ensuring accuracy and reducing false positives.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="display-5 fw-bold mb-4">How Chakravyuh Works</h2>
+                    <p class="lead text-muted mb-5">
+                        Our multi-layered approach ensures comprehensive protection against phone scams at every stage.
+                    </p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <span class="fs-4 fw-bold">1</span>
+                        </div>
+                        <h5 class="fw-bold">Call Monitoring</h5>
+                        <p class="text-muted small">
+                            All incoming and outgoing calls are automatically monitored for suspicious patterns and known scam indicators.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <span class="fs-4 fw-bold">2</span>
+                        </div>
+                        <h5 class="fw-bold">AI Analysis</h5>
+                        <p class="text-muted small">
+                            Advanced AI algorithms analyze voice patterns, conversation content, and behavioral indicators in real-time.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <span class="fs-4 fw-bold">3</span>
+                        </div>
+                        <h5 class="fw-bold">Risk Assessment</h5>
+                        <p class="text-muted small">
+                            Comprehensive risk scoring based on multiple factors including caller history, location, and scam patterns.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <span class="fs-4 fw-bold">4</span>
+                        </div>
+                        <h5 class="fw-bold">Protection & Response</h5>
+                        <p class="text-muted small">
+                            Immediate alerts, call blocking, and detailed reporting to prevent fraud and support law enforcement.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 text-white" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 50%, #003d82 100%);">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                <h2 class="display-6 fw-bold mb-3" style="color: #ffffff !important;">Ready to Protect Against Phone Scams?</h2>
+                    <p class="lead mb-4">
+                        Join thousands of users who trust Chakravyuh to keep them safe from fraudulent calls.
+                    </p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg px-4">
+                            <i class="bi bi-rocket-takeoff me-2"></i>Start Free Trial
+                        </a>
+                        <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg px-4" style="color: #ffffff !important;">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Access Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <div class="d-flex justify-content-center gap-3 mb-3">
+                        <div class="text-center">
+                            <div class="fs-2 fw-bold text-white">99.5%</div>
+                            <small class="text-white-50">Detection Accuracy</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fs-2 fw-bold text-success">24/7</div>
+                            <small class="text-white-50">Monitoring</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fs-2 fw-bold text-info">10K+</div>
+                            <small class="text-white-50">Protected Users</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    {% include 'footer.html' %}
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/custom.js' %}"></script>
+
+    <!-- Smooth Scrolling and Active Navigation -->
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            });
+        });
+
+        // Active navigation highlighting
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.navbar-nav .nav-link[href^="#"]');
+
+        function setActiveLink() {
+            let current = '';
+            const scrollPosition = window.scrollY + 64; // Offset for navbar height (64px)
+
+            // Find the section with the highest top position that is still above the current scroll position
+            let maxTop = -1;
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (sectionTop <= scrollPosition && sectionTop > maxTop) {
+                    maxTop = sectionTop;
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Listen for scroll events
+        window.addEventListener('scroll', setActiveLink);
+        window.addEventListener('load', setActiveLink);
+
+        // Also trigger on click for immediate feedback
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Remove active from all
+                navLinks.forEach(l => l.classList.remove('active'));
+                // Add active to clicked
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

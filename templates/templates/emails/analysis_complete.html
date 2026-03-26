@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Call Analysis Complete</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .header { background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .risk-high { color: #dc3545; font-weight: bold; }
+        .risk-medium { color: #ffc107; font-weight: bold; }
+        .risk-low { color: #28a745; font-weight: bold; }
+        .recommendations { background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; font-size: 12px; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Call Analysis Complete</h2>
+        <p>Hello {{ user.username }},</p>
+        <p>Your call recording has been analyzed by our AI system.</p>
+    </div>
+
+    <div class="analysis-results">
+        <h3>Analysis Results</h3>
+        <p><strong>Call ID:</strong> {{ analysis.call_record.id }}</p>
+        <p><strong>Phone Number:</strong> {{ analysis.call_record.caller_number }}</p>
+        <p><strong>Analysis Date:</strong> {{ analysis.completed_at|date:"F j, Y, g:i a" }}</p>
+
+        <h4>Risk Assessment</h4>
+        <p class="risk-{{ scam_score.scam_level }}">
+            Risk Level: {{ scam_score.scam_level|upper }}
+            (Score: {{ scam_score.overall_score|floatformat:3 }})
+        </p>
+
+        {% if scam_score.factors %}
+        <h4>Contributing Factors</h4>
+        <ul>
+            {% for factor, score in scam_score.factors.items %}
+            <li>{{ factor|title }}: {{ score|floatformat:2 }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if analysis.results.recommendations %}
+        <div class="recommendations">
+            <h4>Recommendations</h4>
+            <ul>
+                {% for recommendation in analysis.results.recommendations %}
+                <li>{{ recommendation }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="actions">
+        <h4>Next Steps</h4>
+        <ul>
+            <li><a href="{{ site.domain }}/dashboard/">View detailed analysis in your dashboard</a></li>
+            <li><a href="{{ site.domain }}/calls/{{ analysis.call_record.id }}/">View call details</a></li>
+            {% if scam_score.overall_score >= 0.6 %}
+            <li><a href="{{ site.domain }}/reports/create/?call={{ analysis.call_record.id }}">File a report</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>This is an automated message from {{ site.name }}. Please do not reply to this email.</p>
+        <p>If you have any questions, please contact our support team.</p>
+    </div>
+</body>
+</html>

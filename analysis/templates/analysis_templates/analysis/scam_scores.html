@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Scam Scores - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Scam Probability Scores</h1>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="get" class="row g-3">
+                <div class="col-md-2">
+                    <input type="number" step="0.01" name="min_score" class="form-control" placeholder="Min Score" value="{{ filters.min_score }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" step="0.01" name="max_score" class="form-control" placeholder="Max Score" value="{{ filters.max_score }}">
+                </div>
+                <div class="col-md-2">
+                    <select name="scam_level" class="form-select">
+                        <option value="">All Levels</option>
+                        {% for choice_value, choice_label in scam_levels %}
+                        <option value="{{ choice_value }}" {% if choice_value == filters.scam_level %}selected{% endif %}>{{ choice_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="reviewed" class="form-select">
+                        <option value="">All</option>
+                        <option value="yes" {% if filters.reviewed == 'yes' %}selected{% endif %}>Reviewed</option>
+                        <option value="no" {% if filters.reviewed == 'no' %}selected{% endif %}>Not Reviewed</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Call</th>
+                                    <th>Score</th>
+                                    <th>Risk Level</th>
+                                    <th>Reviewed</th>
+                                    <th>Reviewer</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for score in page_obj %}
+                                <tr>
+                                    <td>{{ score.call_record.caller_number }} → {{ score.call_record.recipient_number }}</td>
+                                    <td>{{ score.overall_score|floatformat:3 }}</td>
+                                    <td>
+                                        <span class="badge" style="background: {% if score.scam_level == 'critical' %}#ef4444{% elif score.scam_level == 'high' %}#f97316{% elif score.scam_level == 'medium' %}#fbbf24{% elif score.scam_level == 'low' %}#22c55e{% else %}#64748b{% endif %}; color: white;">
+                                            {{ score.get_scam_level_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if score.reviewed_by %}
+                                        <span class="badge bg-success">Yes</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">No</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ score.reviewed_by.username|default:"-" }}</td>
+                                    <td>{{ score.created_at|date:"M d, H:i" }}</td>
+                                    <td>
+                                        {% if user.role == 'law_enforcement' or user.role == 'admin' %}
+                                        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#reviewModal" onclick="setReviewScore('{{ score.id }}')">Review</button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Review Scam Score</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="reviewForm" method="post">
+                {% csrf_token %}
+                <input type="hidden" id="reviewAction" name="action">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="newScore" class="form-label">New Score (0.0 - 1.0)</label>
+                        <input type="number" step="0.001" min="0" max="1" class="form-control" id="newScore" name="new_score">
+                    </div>
+                    <div class="mb-3">
+                        <label for="reviewNotes" class="form-label">Review Notes</label>
+                        <textarea class="form-control" id="reviewNotes" name="review_notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="submitReview('approve')">Approve</button>
+                    <button type="button" class="btn btn-primary" onclick="submitReview('override')">Update Score</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentScoreId = null;
+
+function setReviewScore(scoreId) {
+    currentScoreId = scoreId;
+    const form = document.getElementById('reviewForm');
+    form.action = `/analysis/scores/${scoreId}/review/`;
+    // Reset form fields
+    document.getElementById('newScore').value = '';
+    document.getElementById('reviewNotes').value = '';
+}
+
+function submitReview(action) {
+    document.getElementById('reviewAction').value = action;
+    const form = document.getElementById('reviewForm');
+    form.submit();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}Setup Two-Factor Authentication - Chakravyuh{% endblock %}
+
+
+<!-- 2FA DASHBOARD LAYOUT START -->
+<div class="twofa-dashboard-container">
+    <!-- Header Section -->
+    <div class="twofa-header-row">
+        <div class="twofa-header-left">
+            <h1 class="twofa-title"><i class="bi bi-shield-lock"></i>Set up two-factor authentication</h1>
+            <div class="twofa-subtitle">Secure your account with OTP protection</div>
+        </div>
+        <div class="twofa-header-right">
+            <span class="twofa-status-badge">{% if device %}In Progress{% else %}Not Enabled{% endif %}</span>
+            <span class="twofa-help-icon" title="Need help setting up 2FA?"><i class="bi bi-question-circle"></i></span>
+        </div>
+    </div>
+    <!-- Main Setup Area -->
+    {% if device %}
+    <div class="twofa-main-row">
+        <!-- Left: Setup Instructions -->
+        <div class="twofa-main-left">
+            <div class="twofa-card twofa-card-tight">
+                <div class="twofa-card-header"><i class="bi bi-qr-code"></i>Authenticator app</div>
+                <div class="twofa-qr-center">
+                    {% if qr_code_base64 %}
+                        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code" class="twofa-qr-img">
+                    {% else %}
+                        <div class="twofa-qr-error"><i class="bi bi-exclamation-triangle"></i>Unable to generate QR code</div>
+                    {% endif %}
+                </div>
+                <div class="twofa-app-names">Google Authenticator • Microsoft Authenticator • Authy</div>
+                <div class="twofa-manual-key-row">
+                    <span class="twofa-manual-key-label"><i class="bi bi-key"></i>Manual key:</span>
+                    <span class="twofa-manual-key">{{ device.key }}</span>
+                    <button type="button" class="twofa-copy-btn" onclick="navigator.clipboard.writeText('{{ device.key }}')"><i class="bi bi-clipboard"></i></button>
+                </div>
+            </div>
+            <div class="twofa-card twofa-card-tight">
+                <div class="twofa-card-header"><i class="bi bi-list-check"></i>Steps</div>
+                <div class="twofa-steps-list">
+                    <div class="twofa-step"><span class="twofa-step-icon"><i class="bi bi-download"></i></span>Download app</div>
+                    <div class="twofa-step"><span class="twofa-step-icon"><i class="bi bi-qr-code"></i></span>Scan QR</div>
+                    <div class="twofa-step"><span class="twofa-step-icon"><i class="bi bi-123"></i></span>Enter code</div>
+                    <div class="twofa-step"><span class="twofa-step-icon"><i class="bi bi-shield-check"></i></span>Save recovery</div>
+                </div>
+            </div>
+        </div>
+        <!-- Right: Verification & Action -->
+        <div class="twofa-main-right">
+            <form method="POST" action="{% url 'accounts:setup_otp' %}" class="twofa-sticky-card">
+                {% csrf_token %}
+                <div class="twofa-card-header"><i class="bi bi-check-circle"></i>Verification</div>
+                <div class="twofa-otp-row">
+                    <label for="otp1" class="twofa-otp-label">Enter code</label>
+                    <div class="twofa-otp-inputs">
+                        <input type="text" id="otp1" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" id="otp2" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" id="otp3" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" id="otp4" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" id="otp5" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" id="otp6" maxlength="1" pattern="[0-9]" required>
+                        <input type="hidden" name="token" id="token" required>
+                    </div>
+                    <button type="submit" class="twofa-verify-btn"><i class="bi bi-check-lg"></i>Verify</button>
+                </div>
+                <div class="twofa-divider"></div>
+                <div class="twofa-recovery-row">
+                    <span class="twofa-recovery-label"><i class="bi bi-shield-check"></i>Recovery codes:</span>
+                    <span class="twofa-recovery-count">{{ recovery_codes|length }}</span>
+                    <button type="button" class="twofa-recovery-btn">View</button>
+                    <button type="button" class="twofa-recovery-btn">Download</button>
+                </div>
+                <div class="twofa-recovery-note">Store recovery codes securely. They are your only backup if you lose your device.</div>
+            </form>
+        </div>
+    </div>
+    <!-- Secondary Options Row -->
+    <div class="twofa-secondary-row">
+        <div class="twofa-secondary-card">
+            <div class="twofa-secondary-header"><i class="bi bi-envelope"></i>Backup methods</div>
+            <div class="twofa-secondary-body">SMS / Email (if present)</div>
+        </div>
+        <div class="twofa-secondary-card">
+            <div class="twofa-secondary-header"><i class="bi bi-pc-display"></i>Trusted devices</div>
+            <div class="twofa-secondary-body"><label><input type="checkbox"> Remember this device</label></div>
+        </div>
+    </div>
+    <!-- Footer Action Bar -->
+    <div class="twofa-footer-bar">
+        <button class="twofa-cancel-btn" onclick="window.location.href='{% url 'accounts:profile' %}'"><i class="bi bi-x-lg"></i>Cancel</button>
+        <button class="twofa-enable-btn" type="submit" form="twofa-main-right"><i class="bi bi-shield-lock"></i>Enable</button>
+    </div>
+    {% else %}
+    <!-- Initial Setup (No Device) -->
+    <div class="twofa-initial-card">
+        <div class="twofa-initial-icon"><i class="bi bi-shield-check"></i></div>
+        <div class="twofa-initial-title">Secure your account</div>
+        <div class="twofa-initial-desc">Add an extra layer of security with two-factor authentication</div>
+        <div class="twofa-initial-apps">
+            <span><i class="bi bi-google"></i>Google Authenticator</span>
+            <span><i class="bi bi-microsoft"></i>Microsoft Authenticator</span>
+            <span><i class="bi bi-shield-check"></i>Authy</span>
+        </div>
+        <form method="POST" action="{% url 'accounts:setup_otp' %}">
+            {% csrf_token %}
+            <button type="submit" class="twofa-getstarted-btn"><i class="bi bi-shield-lock"></i>Get started with 2FA setup</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+<!-- 2FA DASHBOARD LAYOUT END -->
+<link rel="stylesheet" href="/static/css/custom.css?v=20241231">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const otpInputs = document.querySelectorAll('#otp1, #otp2, #otp3, #otp4, #otp5, #otp6');
+    const tokenInput = document.getElementById('token');
+
+    function updateToken() {
+        let token = '';
+        otpInputs.forEach(input => {
+            token += input.value;
+        });
+        tokenInput.value = token;
+    }
+
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', function(e) {
+            // Allow only numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Move to next input if a digit is entered
+            if (this.value.length === 1 && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+
+            updateToken();
+        });
+
+        input.addEventListener('keydown', function(e) {
+            // Handle backspace
+            if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+        });
+
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            const digits = paste.replace(/[^0-9]/g, '').slice(0, 6);
+
+            digits.split('').forEach((digit, i) => {
+                if (otpInputs[index + i]) {
+                    otpInputs[index + i].value = digit;
+                }
+            });
+
+            // Focus the next empty input or the last one
+            const nextIndex = Math.min(index + digits.length, otpInputs.length - 1);
+            otpInputs[nextIndex].focus();
+
+            updateToken();
+        });
+    });
+
+    // Focus first input on load
+    if (otpInputs.length > 0) {
+        otpInputs[0].focus();
+    }
+});
+</script>
+
+<style>
+    .btn:hover {
+        opacity: 0.85 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .btn:active {
+        transform: translateY(0) !important;
+    }
+    
+    input[type="text"]:focus {
+        border-color: #14b8a6 !important;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15) !important;
+        outline: none !important;
+    }
+    
+    .card {
+        transition: all 0.2s ease;
+    }
+    
+    .card:hover {
+        border-color: #4b5563 !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    [style*="background: #16243b"]:hover {
+        background: #2a3a4a !important;
+    }
+    
+    @media (max-width: 768px) {
+        .col {
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+        
+        h1 {
+            font-size: 24px !important;
+        }
+    }
+</style>
+{% endblock %}

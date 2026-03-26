@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block title %}Analysis Results - Law Enforcement Dashboard{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="law-enforcement-dashboard main-content-full">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1">Analysis Results</h1>
+            <p class="text-muted mb-0">Comprehensive fraud detection analysis overview</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'law_enforcement_dashboard' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card case-stat-total">
+                <div class="card-body text-center">
+                    <i class="bi bi-search fa-2x mb-2"></i>
+                    <h3 class="mb-1">{{ total_analyses }}</h3>
+                    <small class="text-muted">Total Analyses</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card case-stat-resolved">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check fa-2x mb-2"></i>
+                    <h3 class="mb-1">{{ safe_results }}</h3>
+                    <small class="text-muted">Safe Results</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card case-stat-active">
+                <div class="card-body text-center">
+                    <i class="bi bi-exclamation-triangle fa-2x mb-2"></i>
+                    <h3 class="mb-1">{{ suspicious_results }}</h3>
+                    <small class="text-muted">Suspicious</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card case-stat-high-priority">
+                <div class="card-body text-center">
+                    <i class="bi bi-exclamation-octagon fa-2x mb-2"></i>
+                    <h3 class="mb-1">{{ fraud_detected }}</h3>
+                    <small class="text-muted">Fraud Detected</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Recent Analyses Table -->
+        <div class="col-lg-8">
+            <div class="card" style="background: #0f1a2b; border: 1px solid #24324a; border-radius: 12px;">
+                <div class="card-header" style="background: #16243b; border-bottom: 1px solid #24324a; color: #e2e8f0;">
+                    <h5 class="card-title mb-0">Recent Analysis Results</h5>
+                </div>
+                <div class="card-body" style="background: #0f1a2b;">
+                    <div class="table-responsive">
+                        <table class="table table-hover" style="background: #0f1a2b;">
+                            <thead style="background: #16243b;">
+                                <tr>
+                                    <th style="color: #ffffff; border: none; padding: 12px;">Analysis ID</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px;">Source</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px;">Date</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px;">Risk Level</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px;">Confidence</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody style="background: #0f1a2b;">
+                                {% for analysis in recent_analyses %}
+                                <tr style="background: #1a2332; border-bottom: 1px solid #24324a;">
+                                    <td>
+                                        <code class="small" style="background: #1a2332; color: #ffffff;">{{ analysis.analysis_id }}</code>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ analysis.source }}</span>
+                                    </td>
+                                    <td style="color: #ffffff;">{{ analysis.date|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if analysis.status == 'low' %}
+                                            <span class="badge bg-success">Safe</span>
+                                        {% elif analysis.status == 'medium' %}
+                                            <span class="badge bg-warning text-dark">Suspicious</span>
+                                        {% elif analysis.status == 'high' %}
+                                            <span class="badge bg-danger">High Risk</span>
+                                        {% elif analysis.status == 'critical' %}
+                                            <span class="badge bg-danger">Critical</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Unknown</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar" role="progressbar" style="width: {{ analysis.confidence_score }}%"></div>
+                                        </div>
+                                        <small style="color: #d1d5db;">{{ analysis.confidence_score }}%</small>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewAnalysis({{ analysis.id }})">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr style="background: #1a2332;">
+                                    <td colspan="6" class="text-center py-4" style="color: #d1d5db;">
+                                        <i class="bi bi-search fa-2x mb-2"></i>
+                                        <p>No analyses available yet.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Detected Patterns -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Common Scam Patterns</h6>
+                </div>
+                <div class="card-body">
+                    {% for pattern in detected_patterns %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small">{{ pattern.name }}</span>
+                        <span class="badge bg-danger">{{ pattern.count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Analysis Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Analysis Process</h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for step in analysis_timeline %}
+                        <div class="timeline-item">
+                            <div class="time-label">{{ step.time }}</div>
+                            <div class="timeline-content">
+                                <p class="mb-0 small">{{ step.step }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Detail Modal -->
+<div class="modal fade" id="analysisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Analysis Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="analysisDetails">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function viewAnalysis(analysisId) {
+    // Mock analysis details - in real implementation, fetch from API
+    const mockDetails = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Call Information</h6>
+                <p><strong>Caller:</strong> +1 (555) 123-4567</p>
+                <p><strong>Recipient:</strong> +1 (555) 987-6543</p>
+                <p><strong>Duration:</strong> 4:32</p>
+                <p><strong>Date:</strong> 2024-01-15 14:30</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Risk Assessment</h6>
+                <p><strong>Overall Score:</strong> 87%</p>
+                <p><strong>Risk Level:</strong> <span class="badge bg-danger">High</span></p>
+                <p><strong>Confidence:</strong> 94%</p>
+            </div>
+        </div>
+        <hr>
+        <h6>Detected Patterns</h6>
+        <ul>
+            <li>Urgency pressure tactics</li>
+            <li>Impersonation of authority</li>
+            <li>Request for personal information</li>
+        </ul>
+        <h6>Transcript Excerpt</h6>
+        <blockquote class="blockquote">
+            <p>"This is urgent! You need to provide your social security number immediately or your account will be suspended."</p>
+        </blockquote>
+    `;
+
+    document.getElementById('analysisDetails').innerHTML = mockDetails;
+    new bootstrap.Modal(document.getElementById('analysisModal')).show();
+}
+</script>
+{% endblock %}

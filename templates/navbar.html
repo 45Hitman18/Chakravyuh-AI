@@ -1,0 +1,86 @@
+<nav class="navbar navbar-expand-lg fixed-top app-navbar">
+    <div class="container-fluid px-3">
+        <!-- Brand -->
+        <a class="navbar-brand d-flex align-items-center brand-mark" href="{% url 'landing' %}">
+            {% load static %}
+                <img src="{% static 'images/new.png' %}" alt="Chakravyuh Logo" class="navbar-logo me-2">
+            <span class="brand-text">Chakravyuh</span>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler border-0 app-navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navigation Links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            {% if user.is_authenticated %}
+            <ul class="navbar-nav mx-auto app-nav-links">
+                <li class="nav-item">
+                    {% if user.role == 'law_enforcement' %}
+                        <a class="nav-link {% if request.resolver_match.url_name == 'law_enforcement_dashboard' %}active{% endif %}" href="{% url 'law_enforcement_dashboard' %}">Dashboard</a>
+                    {% elif user.role == 'admin' %}
+                        <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">Dashboard</a>
+                    {% else %}
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
+                    {% endif %}
+                </li>
+
+                {% if user.role != 'user' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if 'calls' in request.path %}active{% endif %}" href="{% url 'calls:call_list' %}">Calls</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if 'analysis' in request.path %}active{% endif %}" href="{% url 'analysis:analysis_list' %}">Analysis</a>
+                </li>
+
+                {% if user.role == 'admin' or user.role == 'law_enforcement' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if 'reports' in request.path %}active{% endif %}" href="{% url 'reports:report_list' %}">Reports</a>
+                </li>
+                {% endif %}
+
+                {% if user.role == 'law_enforcement' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if 'honeypot' in request.path %}active{% endif %}" href="{% url 'honeypot:honeypot_dashboard' %}">Honeypot</a>
+                </li>
+                {% endif %}
+
+                {% if user.role == 'admin' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin/">Admin</a>
+                </li>
+                {% endif %}
+                {% endif %}
+            </ul>
+            {% endif %}
+
+            <!-- User Menu -->
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center nav-user" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-2"></i>
+                            <span>{{ user.get_full_name|default:user.username }}</span>
+                            <span class="badge nav-role ms-2">{{ user.get_role_display }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end app-dropdown" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:setup_otp' %}">Security</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts:register' %}">Register</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

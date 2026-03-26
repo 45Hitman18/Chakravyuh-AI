@@ -1,0 +1,382 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Call Details - {{ call.caller_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Call Information -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-phone"></i> Call Details
+                    </h3>
+                    <div class="card-tools">
+                        <a href="{% url 'calls:call_list' %}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Call ID:</dt>
+                                <dd class="col-sm-8">{{ call.id }}</dd>
+
+                                <dt class="col-sm-4">Caller:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-secondary">{{ call.caller_number }}</span>
+                                </dd>
+
+                                <dt class="col-sm-4">Recipient:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-primary">{{ call.recipient_number }}</span>
+                                </dd>
+
+                                <dt class="col-sm-4">Start Time:</dt>
+                                <dd class="col-sm-8">{{ call.call_start_time|date:"M d, Y H:i:s" }}</dd>
+
+                                <dt class="col-sm-4">End Time:</dt>
+                                <dd class="col-sm-8">
+                                    {% if call.call_end_time %}
+                                        {{ call.call_end_time|date:"M d, Y H:i:s" }}
+                                    {% else %}
+                                        <span class="text-muted">Ongoing</span>
+                                    {% endif %}
+                                </dd>
+
+                                <dt class="col-sm-4">Duration:</dt>
+                                <dd class="col-sm-8">
+                                    {% if call.duration %}
+                                        {{ call.duration|date:"H:i:s" }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </dd>
+
+                                <dt class="col-sm-4">Status:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge
+                                        {% if call.status == 'completed' %}bg-success
+                                        {% elif call.status == 'missed' %}bg-warning
+                                        {% elif call.status == 'incoming' %}bg-info
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ call.get_status_display }}
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-4">Recorded By:</dt>
+                                <dd class="col-sm-8">
+                                    {% if call.recorded_by %}
+                                        {{ call.recorded_by.get_full_name }} ({{ call.recorded_by.username }})
+                                    {% else %}
+                                        <span class="text-muted">System</span>
+                                    {% endif %}
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Scam Analysis Section -->
+                            {% if scam_score %}
+                            <div class="alert alert-{% if scam_score.overall_score >= 0.8 %}danger{% elif scam_score.overall_score >= 0.6 %}warning{% else %}success{% endif %}">
+                                <h5><i class="fas fa-shield-alt"></i> Scam Analysis</h5>
+                                <p><strong>Risk Score:</strong> {{ scam_score.overall_score|floatformat:3 }}</p>
+                                <p><strong>Risk Level:</strong> {{ scam_score.get_scam_level_display }}</p>
+                                {% if scam_score.explanation %}
+                                <p><strong>Analysis:</strong> {{ scam_score.explanation }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Audio Section -->
+                            {% if audio_upload %}
+                            <div class="card border-primary" id="audioSection">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-volume-up"></i> Audio Recording
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <audio controls class="w-100" id="callAudio">
+                                        <source src="{{ audio_upload.audio_file.url }}" type="audio/{% if audio_upload.format %}{{ audio_upload.format }}{% else %}mpeg{% endif %}">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            Format: {{ audio_upload.format|upper }} |
+                                            Size: {{ audio_upload.file_size|filesizeformat }} |
+                                            Duration: {{ audio_upload.duration|default:"Unknown" }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info" id="noAudioSection">
+                                <i class="fas fa-info-circle"></i> No audio recording available for this call.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transcript Preview Section -->
+            {% if ai_analysis %}
+            <div class="card mt-3">
+                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h5 class="card-title mb-0" style="color: white;">
+                        <i class="fas fa-file-alt"></i> Transcript Preview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if ai_analysis.results.raw_transcript or ai_analysis.results.transcript_display %}
+                    <div class="transcript-preview" id="transcriptSection" style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 15px; border-radius: 4px; max-height: 300px; overflow-y: auto;">
+                        <p class="mb-0" id="transcriptContent" style="color: #333; line-height: 1.8; font-family: 'Courier New', monospace; white-space: pre-wrap; word-wrap: break-word;">
+                            {% if ai_analysis.results.transcript_tokens %}
+                                {% for token in ai_analysis.results.transcript_tokens %}
+                                    <span class="transcript-word" data-start="{{ token.start }}" data-end="{{ token.end }}">{{ token.word }}</span>{% if not forloop.last %} {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% if ai_analysis.results.transcript_display == "[unclear]" %}
+                                    {% if ai_analysis.results.raw_transcript %}
+                                        <span style="color: #6b7280;">{{ ai_analysis.results.raw_transcript }}</span>
+                                        <br><small style="color: #9ca3af; font-style: italic;">(Low confidence - transcription may be inaccurate)</small>
+                                    {% else %}
+                                        <span style="color: #9ca3af; font-style: italic;">[unclear]</span>
+                                    {% endif %}
+                                {% else %}
+                                    {{ ai_analysis.results.transcript_display|default:ai_analysis.results.raw_transcript }}
+                                {% endif %}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-check-circle"></i> Transcript generated on {{ ai_analysis.completed_at|date:"M d, Y H:i" }}
+                            {% if ai_analysis.results.transcript_confidence %}
+                                • Confidence: {{ ai_analysis.results.transcript_confidence|floatformat:2 }}
+                            {% endif %}
+                            {% if ai_analysis.results.transcript_language %}
+                                • Language: {{ ai_analysis.results.transcript_language }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-hourglass-half"></i> Transcript is being processed or not available (low confidence). Please refresh the page in a few moments.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- AI Analysis Section -->
+            {% if ai_analysis %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-brain"></i> AI Analysis Results
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Analysis Type:</strong> {{ ai_analysis.get_analysis_type_display }}</p>
+                            <p><strong>Status:</strong>
+                                <span class="badge
+                                    {% if ai_analysis.status == 'completed' %}bg-success
+                                    {% elif ai_analysis.status == 'processing' %}bg-warning
+                                    {% else %}bg-danger{% endif %}">
+                                    {{ ai_analysis.get_status_display }}
+                                </span>
+                            </p>
+                            <p><strong>Confidence:</strong> {{ ai_analysis.confidence_score|floatformat:2 }}</p>
+                            <p><strong>Processing Time:</strong> {{ ai_analysis.processing_time|default:"Unknown" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            {% if ai_analysis.results.analysis.keywords_found %}
+                            <div class="mb-3">
+                                <strong><i class="fas fa-tag"></i> Scam Keywords Found:</strong>
+                                <div>
+                                    {% for keyword in ai_analysis.results.analysis.keywords_found %}
+                                    <span class="badge bg-danger me-1 mb-1">{{ keyword }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-info-circle"></i> No scam keywords detected.
+                            </div>
+                            {% endif %}
+
+                            {% if ai_analysis.results.analysis.patterns_found %}
+                            <div class="mb-3">
+                                <strong><i class="fas fa-exclamation-triangle"></i> Patterns Detected:</strong>
+                                <div>
+                                    {% for pattern in ai_analysis.results.analysis.patterns_found %}
+                                    <span class="badge bg-warning text-dark me-1 mb-1">{{ pattern }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if ai_analysis.results.analysis.analysis_summary %}
+                            <div class="alert alert-primary">
+                                <strong>Summary:</strong> {{ ai_analysis.results.analysis.analysis_summary }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    {% if user.role != 'user' %}
+                    <form method="post" enctype="multipart/form-data" class="mb-3">
+                        {% csrf_token %}
+                        <label class="form-label">Upload Audio</label>
+                        <input type="file" name="audio_file" accept="audio/*" class="form-control mb-2" required>
+                        <input type="text" name="format" placeholder="Format (mp3, wav, etc.)" class="form-control mb-2">
+                        <textarea name="description" placeholder="Description" class="form-control mb-2" rows="2"></textarea>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-upload"></i> Upload
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        {% if user.role == 'admin' or user.role == 'law_enforcement' %}
+                        <a href="#" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-flag"></i> Flag as Suspicious
+                        </a>
+                        <a href="#" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-exclamation-triangle"></i> Create Incident Report
+                        </a>
+                        {% endif %}
+                        <a href="#" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-share"></i> Share Call Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Reports -->
+            {% if reports %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Related Reports</h6>
+                </div>
+                <div class="card-body">
+                    {% for report in reports %}
+                    <div class="mb-2">
+                        <a href="#" class="text-decoration-none">
+                            <strong>{{ report.title }}</strong>
+                        </a>
+                        <br>
+                        <small class="text-muted">
+                            {{ report.report_type|title }} • {{ report.created_at|date:"M d, Y" }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Call Timeline -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Call Timeline</h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline timeline-inverse">
+                        <div class="time-label">
+                            <span class="bg-info">{{ call.call_start_time|date:"M d, H:i" }}</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-phone bg-info"></i>
+                            <div class="timeline-item">
+                                <span class="time"><i class="fas fa-clock"></i> Call Started</span>
+                                <h3 class="timeline-header">Incoming call from {{ call.caller_number }}</h3>
+                            </div>
+                        </div>
+                        {% if call.call_end_time %}
+                        <div class="time-label">
+                            <span class="bg-success">{{ call.call_end_time|date:"M d, H:i" }}</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-phone-slash bg-success"></i>
+                            <div class="timeline-item">
+                                <span class="time"><i class="fas fa-clock"></i> Call Ended</span>
+                                <h3 class="timeline-header">Call completed - {{ call.duration|date:"H:i:s" }}</h3>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if audio_upload %}
+                        <div>
+                            <i class="fas fa-volume-up bg-warning"></i>
+                            <div class="timeline-item">
+                                <span class="time"><i class="fas fa-clock"></i> {{ audio_upload.uploaded_at|date:"H:i" }}</span>
+                                <h3 class="timeline-header">Audio recording uploaded</h3>
+                                <div class="timeline-body">
+                                    File: {{ audio_upload.file_name }} ({{ audio_upload.file_size|filesizeformat }})
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if ai_analysis %}
+                        <div>
+                            <i class="fas fa-brain bg-purple"></i>
+                            <div class="timeline-item">
+                                <span class="time"><i class="fas fa-clock"></i> {{ ai_analysis.created_at|date:"H:i" }}</span>
+                                <h3 class="timeline-header">AI Analysis completed</h3>
+                                <div class="timeline-body">
+                                    Confidence: {{ ai_analysis.confidence_score|floatformat:2 }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const audio = document.getElementById('callAudio');
+    const transcriptSection = document.getElementById('transcriptSection');
+
+    if (!audio || !transcriptSection) {
+        return;
+    }
+
+    transcriptSection.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!target.classList.contains('transcript-word')) {
+            return;
+        }
+
+        const start = parseFloat(target.getAttribute('data-start'));
+        if (!isNaN(start)) {
+            audio.currentTime = start;
+            audio.play();
+        }
+    });
+});
+</script>
+{% endblock %}

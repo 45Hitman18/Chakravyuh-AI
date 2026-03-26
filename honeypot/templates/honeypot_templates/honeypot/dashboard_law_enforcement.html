@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Honeypot Dashboard - Law Enforcement{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="mb-4">
+                <i class="fas fa-shield-alt"></i> Honeypot Intelligence Dashboard
+                <small class="text-muted">Law Enforcement View</small>
+            </h1>
+        </div>
+    </div>
+
+    <!-- Key Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-dark text-white border-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Active Sessions</h5>
+                    <h2 class="mb-0">{{ total_sessions }}</h2>
+                    <small class="text-warning">{{ active_sessions|length }} active</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white border-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Total Interactions</h5>
+                    <h2 class="mb-0">{{ total_interactions }}</h2>
+                    <small class="text-info">{{ high_risk_sessions }} high-risk</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white border-info">
+                <div class="card-body">
+                    <h5 class="card-title">Scammer Profiles</h5>
+                    <h2 class="mb-0">{{ total_scammers }}</h2>
+                    <small class="text-success">All tracked</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-dark text-white border-success">
+                <div class="card-body">
+                    <h5 class="card-title">AI Learning Feeds</h5>
+                    <h2 class="mb-0">{{ ai_learning_feeds }}</h2>
+                    <small class="text-muted">Last 7 days</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'honeypot_session_list' %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-list"></i> View All Sessions
+            </a>
+            <a href="{% url 'scammer_profile_list' %}" class="btn btn-outline-warning me-2">
+                <i class="fas fa-users"></i> Scammer Profiles
+            </a>
+            <a href="{% url 'honeypot_reports' %}" class="btn btn-outline-success me-2">
+                <i class="fas fa-chart-bar"></i> Generate Reports
+            </a>
+        </div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card bg-dark text-white border-secondary">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-phone-alt"></i> Active Honeypot Sessions
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if active_sessions %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Session Name</th>
+                                    <th>Phone Number</th>
+                                    <th>Started</th>
+                                    <th>Interactions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for session in active_sessions %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ session.session_name }}</strong>
+                                    </td>
+                                    <td>
+                                        <code>{{ session.phone_number }}</code>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ session.start_time|date:"M d, Y H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ session.interactions.count }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'honeypot_session_detail' session.id %}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle"></i> No active sessions at the moment.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Interactions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card bg-dark text-white border-secondary">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments"></i> Recent Interactions
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_interactions %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Scammer</th>
+                                    <th>Session</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Extracted Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for interaction in recent_interactions %}
+                                <tr>
+                                    <td>
+                                        {% if interaction.scammer_profile %}
+                                        <a href="{% url 'scammer_profile_detail' interaction.scammer_profile.id %}">
+                                            {{ interaction.scammer_profile.phone_number }}
+                                        </a>
+                                        {% else %}
+                                        <code>Unknown</code>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ interaction.honeypot_session.session_name }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ interaction.start_time|date:"M d H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if interaction.status == 'completed' %}bg-success{% else %}bg-warning{% endif %}">
+                                            {{ interaction.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'honeypot_interaction_detail' interaction.id %}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-search"></i> Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle"></i> No interactions recorded yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Scammers -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card bg-dark text-white border-danger">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Top Risk Scammers
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if top_scammers %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Phone Number</th>
+                                    <th>Name</th>
+                                    <th>Risk Score</th>
+                                    <th>Scam Types</th>
+                                    <th>Interactions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for scammer in top_scammers %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'scammer_profile_detail' scammer.id %}">
+                                            <code>{{ scammer.phone_number }}</code>
+                                        </a>
+                                    </td>
+                                    <td>{{ scammer.name|default:"N/A" }}</td>
+                                    <td>
+                                        <span class="badge {% if scammer.risk_score >= 0.7 %}bg-danger{% elif scammer.risk_score >= 0.4 %}bg-warning{% else %}bg-success{% endif %}">
+                                            {{ scammer.risk_score|floatformat:2 }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% for scam_type in scammer.scam_types %}
+                                        <span class="badge bg-secondary">{{ scam_type }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ scammer.interactions.count }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle"></i> No scammer profiles tracked yet.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .table-responsive {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+    }
+</style>
+{% endblock %}

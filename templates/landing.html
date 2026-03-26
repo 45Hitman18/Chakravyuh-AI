@@ -1,0 +1,451 @@
+{% load static %}
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Chakravyuh | AI-Powered Phone Scam Detection</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary-dim": "#00deec",
+                "outline-variant": "#41475b",
+                "error": "#ff716c",
+                "secondary": "#7e98ff",
+                "on-secondary-fixed": "#00298b",
+                "error-dim": "#d7383b",
+                "surface-container-high": "#171f36",
+                "surface-dim": "#070d1f",
+                "surface-container": "#11192e",
+                "surface-container-lowest": "#000000",
+                "on-secondary": "#00185c",
+                "surface-tint": "#8ff5ff",
+                "tertiary-fixed": "#bda1ff",
+                "surface-variant": "#1c253e",
+                "surface-bright": "#222b47",
+                "background": "#070d1f",
+                "on-primary-fixed-variant": "#005e64",
+                "on-primary-container": "#005359",
+                "on-background": "#dfe4fe",
+                "on-secondary-container": "#f8f7ff",
+                "on-error-container": "#ffa8a3",
+                "tertiary": "#ac89ff",
+                "on-tertiary-fixed": "#1f0052",
+                "inverse-surface": "#faf8ff",
+                "secondary-container": "#004ced",
+                "error-container": "#9f0519",
+                "on-surface": "#dfe4fe",
+                "on-tertiary-fixed-variant": "#4700a7",
+                "on-secondary-fixed-variant": "#0040cd",
+                "on-surface-variant": "#a5aac2",
+                "surface-container-low": "#0c1326",
+                "on-primary-fixed": "#003f43",
+                "secondary-fixed": "#c6cfff",
+                "primary-fixed-dim": "#00deec",
+                "tertiary-fixed-dim": "#b190ff",
+                "primary": "#8ff5ff",
+                "tertiary-dim": "#874cff",
+                "secondary-fixed-dim": "#b3c1ff",
+                "on-error": "#490006",
+                "inverse-on-surface": "#4f5469",
+                "secondary-dim": "#3766ff",
+                "primary-fixed": "#00eefc",
+                "on-tertiary": "#290067",
+                "primary-container": "#00eefc",
+                "on-tertiary-container": "#f8f1ff",
+                "on-primary": "#005d63",
+                "surface-container-highest": "#1c253e",
+                "surface": "#070d1f",
+                "inverse-primary": "#006a71",
+                "outline": "#6f758b",
+                "tertiary-container": "#7000ff"
+              },
+              fontFamily: {
+                "headline": ["Space Grotesk"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+    </script>
+    <style>
+        :root {
+            --glass-bg: rgba(13, 19, 38, 0.7);
+            --glass-border: rgba(143, 245, 255, 0.2);
+        }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #8ff5ff 0%, #00eefc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at 20% 30%, rgba(0, 238, 252, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(126, 152, 255, 0.1) 0%, transparent 50%);
+        }
+        .perspective-container {
+            perspective: 2000px;
+        }
+        .tilted-card {
+            transform: rotateY(-25deg) rotateX(10deg) rotateZ(2deg);
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .tilted-card:hover {
+            transform: rotateY(-10deg) rotateX(5deg) rotateZ(0deg);
+        }
+        .floating-layer-1 { transform: translateZ(50px); }
+        .floating-layer-2 { transform: translateZ(100px); }
+        
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        .animate-float-delayed {
+            animation: float 8s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+        
+        .card-3d {
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            transform-style: preserve-3d;
+        }
+        .card-3d:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 25px 50px -12px rgba(0, 222, 236, 0.25);
+        }
+        
+        .glowing-edge {
+            position: relative;
+            overflow: hidden;
+        }
+        .glowing-edge::after {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(90deg, transparent, rgba(143, 245, 255, 0.4), transparent);
+            z-index: -1;
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+        .glowing-edge:hover::after {
+            opacity: 1;
+        }
+
+        body {
+            background-color: #070d1f;
+            color: #dfe4fe;
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary/30 selection:text-primary overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-[100] bg-slate-950/60 backdrop-blur-2xl border-b border-white/5">
+    <div class="flex justify-between items-center px-8 py-5 max-w-7xl mx-auto">
+        <div class="text-2xl font-bold tracking-tighter text-white font-headline flex items-center gap-3">
+            <img src="{% static 'images/chakravyuh-logo.png' %}" alt="Chakravyuh Logo" class="w-10 h-10 object-contain shadow-lg shadow-primary/20 rounded-lg">
+            Chakravyuh
+        </div>
+        <div class="hidden md:flex gap-10 font-headline text-xs font-semibold tracking-widest uppercase items-center">
+            <a class="text-primary relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary" href="#home">Home</a>
+            <a class="text-slate-400 hover:text-white transition-all hover:tracking-[0.2em]" href="#problem">Problem</a>
+            <a class="text-slate-400 hover:text-white transition-all hover:tracking-[0.2em]" href="#solution">Solution</a>
+            <a class="text-slate-400 hover:text-white transition-all hover:tracking-[0.2em]" href="#how-it-works">How It Works</a>
+            <a class="text-slate-400 hover:text-white transition-all hover:tracking-[0.2em]" href="{% url 'accounts:login' %}">Login</a>
+        </div>
+        <a href="{% url 'accounts:register' %}" class="bg-white text-black font-bold px-7 py-2.5 rounded-full hover:bg-primary hover:scale-105 transition-all duration-300 shadow-xl shadow-white/5">
+            Get Started
+        </a>
+    </div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="relative pt-40 pb-32 md:pt-56 md:pb-48 overflow-hidden hero-gradient" id="home">
+    <!-- Floating 3D elements in background -->
+    <div class="absolute top-1/4 left-10 animate-float opacity-20 pointer-events-none">
+        <span class="material-symbols-outlined text-[120px] text-primary" data-icon="shield">shield</span>
+    </div>
+    <div class="absolute bottom-1/4 right-10 animate-float-delayed opacity-20 pointer-events-none">
+        <span class="material-symbols-outlined text-[100px] text-secondary" data-icon="lock">lock</span>
+    </div>
+    <div class="max-w-7xl mx-auto px-8 flex flex-col lg:flex-row items-center gap-24 relative z-10">
+        <div class="flex-1 text-center lg:text-left">
+            <div class="inline-block px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold tracking-[0.3em] uppercase mb-8">
+                The Digital Bastion
+            </div>
+            <h1 class="font-headline text-6xl md:text-8xl font-bold leading-[0.9] mb-8 tracking-tighter">
+                Protect <br/>
+                <span class="text-gradient">Phone Scams</span> <br/>
+                with AI
+            </h1>
+            <p class="text-on-surface-variant text-xl md:text-2xl max-w-xl mb-12 leading-relaxed mx-auto lg:mx-0 font-light">
+                Real-time neural architecture that neutralizes threats before they reach your ears. Elevate your security.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
+                <a href="{% url 'accounts:register' %}" class="bg-primary text-on-primary-fixed font-bold px-10 py-5 rounded-2xl hover:scale-105 hover:shadow-[0_0_40px_rgba(0,222,236,0.3)] transition-all active:scale-95 text-lg text-center">
+                    Get Started Free
+                </a>
+                <a href="{% url 'accounts:login' %}" class="glass-panel px-10 py-5 rounded-2xl text-white font-medium hover:bg-white/10 transition-all active:scale-95 text-lg text-center">
+                    Login
+                </a>
+            </div>
+        </div>
+        <div class="flex-1 w-full perspective-container">
+            <!-- 3D Stacked Dashboard Mockup -->
+            <div class="relative tilted-card">
+                <!-- Main Card -->
+                <div class="glass-panel p-10 rounded-[2.5rem] relative z-20 shadow-2xl">
+                    <div class="flex justify-between items-center mb-10">
+                        <h3 class="font-headline font-bold text-2xl tracking-tight">Security Engine</h3>
+                        <span class="bg-primary/20 text-primary text-[10px] font-black px-4 py-1.5 rounded-full border border-primary/40 uppercase tracking-widest">Active</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6 mb-10">
+                        <div class="bg-white/5 p-6 rounded-3xl border border-white/10 floating-layer-1">
+                            <p class="text-on-surface-variant text-xs mb-2 font-semibold uppercase tracking-tighter">Detection</p>
+                            <p class="text-4xl font-bold font-headline text-primary">99.5%</p>
+                        </div>
+                        <div class="bg-white/5 p-6 rounded-3xl border border-white/10 floating-layer-1">
+                            <p class="text-on-surface-variant text-xs mb-2 font-semibold uppercase tracking-tighter">Status</p>
+                            <p class="text-4xl font-bold font-headline text-secondary">LIVE</p>
+                        </div>
+                    </div>
+                    <div class="space-y-6 floating-layer-2">
+                        <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Threat Log</p>
+                        <!-- Activity Item 1 -->
+                        <div class="flex items-center gap-5 p-5 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors cursor-pointer group">
+                            <div class="w-12 h-12 rounded-xl bg-error/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-error" data-icon="block">block</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-base font-bold">Voice Clone Blocked</p>
+                                <p class="text-xs text-on-surface-variant">Identity mismatch detected</p>
+                            </div>
+                            <span class="text-[10px] text-on-surface-variant font-mono">2m</span>
+                        </div>
+                        <!-- Activity Item 2 -->
+                        <div class="flex items-center gap-5 p-5 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors cursor-pointer group">
+                            <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-primary" data-icon="verified">verified</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-base font-bold">Secure Verification</p>
+                                <p class="text-xs text-on-surface-variant">Bank Protocol confirmed</p>
+                            </div>
+                            <span class="text-[10px] text-on-surface-variant font-mono">15m</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Decorative back layers for depth -->
+                <div class="absolute top-4 left-4 w-full h-full glass-panel rounded-[2.5rem] -z-10 opacity-30"></div>
+                <div class="absolute top-8 left-8 w-full h-full glass-panel rounded-[2.5rem] -z-20 opacity-10"></div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Problem Section -->
+<section class="py-32 bg-[#0a1128]" id="problem">
+    <div class="max-w-7xl mx-auto px-8">
+        <div class="text-center mb-24">
+            <h2 class="font-headline text-5xl md:text-6xl font-bold mb-8 tracking-tight">The Modern <span class="text-gradient">Threat</span> Landscape</h2>
+            <p class="text-on-surface-variant max-w-2xl mx-auto text-lg font-light">Traditional security layers are paper-thin against AI-driven social engineering.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-12">
+            <!-- Problem Card 1 -->
+            <div class="glass-panel p-10 rounded-[2rem] card-3d group relative">
+                <div class="w-16 h-16 rounded-2xl bg-error/10 flex items-center justify-center mb-8 shadow-inner">
+                    <span class="material-symbols-outlined text-error text-4xl" data-icon="trending_up">trending_up</span>
+                </div>
+                <h3 class="font-headline text-2xl font-bold mb-4">Loss Escalation</h3>
+                <p class="text-on-surface-variant leading-relaxed font-light">Global losses to voice-phishing have breached $40B annually as deepfakes become indistinguishable.</p>
+                <!-- 3D Icon Overlay on hover -->
+                <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span class="material-symbols-outlined text-error/30 text-6xl" data-icon="warning">warning</span>
+                </div>
+            </div>
+            <!-- Problem Card 2 -->
+            <div class="glass-panel p-10 rounded-[2rem] card-3d group">
+                <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-8 shadow-inner">
+                    <span class="material-symbols-outlined text-primary text-4xl" data-icon="group">group</span>
+                </div>
+                <h3 class="font-headline text-2xl font-bold mb-4">Precision Targeting</h3>
+                <p class="text-on-surface-variant leading-relaxed font-light">Adversaries utilize emotional triggers and social data to compromise high-value targets with 92% success.</p>
+            </div>
+            <!-- Problem Card 3 -->
+            <div class="glass-panel p-10 rounded-[2rem] card-3d group">
+                <div class="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center mb-8 shadow-inner">
+                    <span class="material-symbols-outlined text-secondary text-4xl" data-icon="gpp_maybe">gpp_maybe</span>
+                </div>
+                <h3 class="font-headline text-2xl font-bold mb-4">Legacy Fragility</h3>
+                <p class="text-on-surface-variant leading-relaxed font-light">Caller ID spoofing and dynamic VOIP hopping render traditional blocklists entirely obsolete.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Solution Section -->
+<section class="py-32 relative overflow-hidden" id="solution">
+    <div class="max-w-7xl mx-auto px-8 relative z-10">
+        <div class="flex flex-col lg:flex-row justify-between items-end mb-24 gap-10">
+            <div class="lg:w-1/2">
+                <h2 class="font-headline text-5xl md:text-6xl font-bold mb-8 leading-tight">State-of-the-Art <br/><span class="text-gradient">Neutralization</span></h2>
+                <p class="text-on-surface-variant text-xl font-light">Our neural framework operates in sub-millisecond cycles to detect, verify, and protect.</p>
+            </div>
+            <div class="lg:w-1/2 flex justify-end">
+                <div class="h-[1px] w-full bg-gradient-to-r from-transparent via-primary/30 to-primary"></div>
+            </div>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Solution Card 1 -->
+            <div class="glass-panel p-10 rounded-3xl border-t-2 border-primary/40 hover:scale-105 transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                <span class="material-symbols-outlined text-primary mb-8 block text-5xl transition-transform group-hover:rotate-12" data-icon="psychology">psychology</span>
+                <h4 class="font-headline text-xl font-bold mb-4 tracking-tight">AI Analysis</h4>
+                <p class="text-sm text-on-surface-variant leading-relaxed">Neural-phonetic analysis detects the slightest tremors in synthetic speech patterns.</p>
+            </div>
+            <!-- Solution Card 2 -->
+            <div class="glass-panel p-10 rounded-3xl border-t-2 border-primary/40 hover:scale-105 transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                <span class="material-symbols-outlined text-primary mb-8 block text-5xl transition-transform group-hover:rotate-12" data-icon="radar">radar</span>
+                <h4 class="font-headline text-xl font-bold mb-4 tracking-tight">Active Pulse</h4>
+                <p class="text-sm text-on-surface-variant leading-relaxed">Continuous stream monitoring that provides real-time threat scores for every interaction.</p>
+            </div>
+            <!-- Solution Card 3 -->
+            <div class="glass-panel p-10 rounded-3xl border-t-2 border-primary/40 hover:scale-105 transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                <span class="material-symbols-outlined text-primary mb-8 block text-5xl transition-transform group-hover:rotate-12" data-icon="database">database</span>
+                <h4 class="font-headline text-xl font-bold mb-4 tracking-tight">Global Index</h4>
+                <p class="text-sm text-on-surface-variant leading-relaxed">A distributed ledger of known fraud vectors updated across our network every second.</p>
+            </div>
+            <!-- Solution Card 4 -->
+            <div class="glass-panel p-10 rounded-3xl border-t-2 border-primary/40 hover:scale-105 transition-all duration-500 group relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors"></div>
+                <span class="material-symbols-outlined text-primary mb-8 block text-5xl transition-transform group-hover:rotate-12" data-icon="verified_user">verified_user</span>
+                <h4 class="font-headline text-xl font-bold mb-4 tracking-tight">Hybrid Verification</h4>
+                <p class="text-sm text-on-surface-variant leading-relaxed">Combines AI speed with human-in-the-loop audits for 100% confidence on edge cases.</p>
+            </div>
+        </div>
+    </div>
+    <!-- Decorative 3D shadow in background -->
+    <div class="absolute -bottom-48 -left-48 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full"></div>
+</section>
+<!-- How It Works Section -->
+<section class="py-32 bg-[#050b1a] relative" id="how-it-works">
+    <div class="max-w-7xl mx-auto px-8 relative z-10">
+        <div class="text-center mb-32">
+            <h2 class="font-headline text-5xl md:text-6xl font-bold tracking-tight">The Tactical <span class="text-gradient">Workflow</span></h2>
+        </div>
+        <div class="grid md:grid-cols-4 gap-16 relative">
+            <!-- Connectors for Desktop -->
+            <div class="hidden md:block absolute top-12 left-0 w-full h-[2px] bg-white/5 -z-0"></div>
+            <!-- Step 1 -->
+            <div class="relative group">
+                <div class="w-24 h-24 rounded-3xl bg-slate-900 border border-primary/20 flex items-center justify-center mx-auto mb-10 text-primary font-headline text-3xl font-bold shadow-2xl relative z-10 group-hover:-translate-y-4 transition-transform duration-500">
+                    01
+                    <div class="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+                <h4 class="font-headline font-bold text-2xl mb-4 text-center">Stream Intake</h4>
+                <p class="text-base text-on-surface-variant text-center font-light px-4">Instant ingestion of encrypted audio signals into our local secure node.</p>
+            </div>
+            <!-- Step 2 -->
+            <div class="relative group">
+                <div class="w-24 h-24 rounded-3xl bg-slate-900 border border-primary/20 flex items-center justify-center mx-auto mb-10 text-primary font-headline text-3xl font-bold shadow-2xl relative z-10 group-hover:-translate-y-4 transition-transform duration-500">
+                    02
+                    <div class="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+                <h4 class="font-headline font-bold text-2xl mb-4 text-center">AI Audit</h4>
+                <p class="text-base text-on-surface-variant text-center font-light px-4">Deep convolutional networks cross-examine voice signatures for anomalies.</p>
+            </div>
+            <!-- Step 3 -->
+            <div class="relative group">
+                <div class="w-24 h-24 rounded-3xl bg-slate-900 border border-primary/20 flex items-center justify-center mx-auto mb-10 text-primary font-headline text-3xl font-bold shadow-2xl relative z-10 group-hover:-translate-y-4 transition-transform duration-500">
+                    03
+                    <div class="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+                <h4 class="font-headline font-bold text-2xl mb-4 text-center">Risk Score</h4>
+                <p class="text-base text-on-surface-variant text-center font-light px-4">Dynamic probability mapping against the global threat repository.</p>
+            </div>
+            <!-- Step 4 -->
+            <div class="relative group">
+                <div class="w-24 h-24 rounded-3xl bg-primary border border-primary/20 flex items-center justify-center mx-auto mb-10 text-on-primary font-headline text-3xl font-bold shadow-2xl relative z-10 group-hover:-translate-y-4 transition-transform duration-500 shadow-primary/30">
+                    04
+                    <div class="absolute inset-0 bg-white/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+                <h4 class="font-headline font-bold text-2xl mb-4 text-center">Mitigation</h4>
+                <p class="text-base text-on-surface-variant text-center font-light px-4">Automatic threat isolation and redirection to a secure air-gapped vault.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- CTA Section -->
+<section class="py-40 px-8">
+    <div class="max-w-6xl mx-auto glass-panel rounded-[4rem] p-20 md:p-32 text-center relative overflow-hidden perspective-container">
+        <div class="relative z-10">
+            <h2 class="font-headline text-6xl md:text-8xl font-bold mb-12 tracking-tight leading-none">Armor Your <br/> <span class="text-gradient">Communications</span></h2>
+            <div class="flex flex-wrap justify-center gap-8 mb-20">
+                <a href="{% url 'accounts:register' %}" class="bg-primary text-on-primary-fixed font-bold px-12 py-6 rounded-2xl hover:scale-110 hover:shadow-[0_0_60px_rgba(0,222,236,0.4)] transition-all active:scale-95 text-xl text-center">
+                    Start Your Free Trial
+                </a>
+                <a href="{% url 'accounts:login' %}" class="glass-panel px-12 py-6 rounded-2xl text-white font-bold hover:bg-white/10 transition-all active:scale-95 text-xl text-center">
+                    Access Dashboard
+                </a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-12 pt-20 border-t border-white/10">
+                <div class="hover:scale-110 transition-transform">
+                    <p class="text-5xl font-bold font-headline text-primary mb-2">99.5%</p>
+                    <p class="text-xs uppercase tracking-[0.4em] text-on-surface-variant font-bold">Accuracy Rating</p>
+                </div>
+                <div class="hover:scale-110 transition-transform">
+                    <p class="text-5xl font-bold font-headline text-primary mb-2">24/7</p>
+                    <p class="text-xs uppercase tracking-[0.4em] text-on-surface-variant font-bold">Live Monitoring</p>
+                </div>
+                <div class="hover:scale-110 transition-transform">
+                    <p class="text-5xl font-bold font-headline text-primary mb-2">10K+</p>
+                    <p class="text-xs uppercase tracking-[0.4em] text-on-surface-variant font-bold">Systems Protected</p>
+                </div>
+            </div>
+        </div>
+        <!-- Background Visual with 3D feel -->
+        <div class="absolute inset-0 -z-0 opacity-10">
+            <img class="w-full h-full object-cover scale-150 rotate-12" alt="abstract digital network" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJIoRz7W36hmsHAclrTiGeS8qM5NE8dkQkhVl3FImU1gJGJ240VbrmKBD82GMezCBzjTG6oBZgiKC9FiS6TXJ5QCEMCBiVEezoNTazxiusNsTd6HPev78K6wmZaYoBy9vnQNEZ_-ScH50RG6DI4cjO3IWvhF7qUjwL_R08ZPC_LQrAQ391PHNlYkCOwDJhL6Q6s8B6VKswshVPWHVw8FxH4c8r2SYhy1obMnVHhHG7pKHP93rMLpGi-_VEW006fxTwsc0r4Ifp0uI"/>
+        </div>
+    </div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-950 w-full py-20 border-t border-white/5">
+    <div class="flex flex-col md:flex-row justify-between items-center px-8 max-w-7xl mx-auto gap-12">
+        <div class="flex items-center gap-3">
+            <img src="{% static 'images/chakravyuh-logo.png' %}" alt="Chakravyuh Logo" class="w-8 h-8 object-contain">
+            <div class="text-2xl font-bold text-white font-headline">Chakravyuh</div>
+        </div>
+        <div class="flex flex-wrap justify-center gap-10">
+            <a class="font-body text-xs font-semibold tracking-widest text-slate-500 hover:text-primary transition-colors uppercase" href="#">Privacy</a>
+            <a class="font-body text-xs font-semibold tracking-widest text-slate-500 hover:text-primary transition-colors uppercase" href="#">Terms</a>
+            <a class="font-body text-xs font-semibold tracking-widest text-slate-500 hover:text-primary transition-colors uppercase" href="#">Audit</a>
+            <a class="font-body text-xs font-semibold tracking-widest text-slate-500 hover:text-primary transition-colors uppercase" href="#">Support</a>
+        </div>
+        <p class="font-body text-[10px] text-slate-500 text-center md:text-right font-bold tracking-widest uppercase opacity-50">
+            © 2024 Chakravyuh AI. Built for the Digital Bastion.
+        </p>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<footer class="footer-main{% if request.path == '/' or request.path == '/support/' or request.path == '/faq/' %} landing-footer{% endif %}">
+    <!-- Top separator line -->
+    <div class="footer-top-separator"></div>
+
+    <!-- Main footer content -->
+    <div class="footer-content">
+        <div class="container-fluid">
+            {% if request.path == '/' or request.path == '/support/' or request.path == '/faq/' %}
+            <!-- FULL FOOTER - Landing/Support/FAQ Pages -->
+            <div class="row g-4 full-footer">
+                <!-- Branding Section (35%) -->
+                <div class="col-lg-4 col-md-6 footer-branding">
+                    <div class="branding-content">
+                        <h5 class="footer-brand">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+                                <circle cx="12" cy="12" r="11" fill="url(#chakraGradient)" stroke="white" stroke-width="1"/>
+                                <path d="M8 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <defs>
+                                    <linearGradient id="chakraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#0ea5e9"/>
+                                        <stop offset="50%" style="stop-color:#f59e0b"/>
+                                        <stop offset="100%" style="stop-color:#0f172a"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            Chakravyuh
+                        </h5>
+                        <p class="footer-description">
+                            Advanced cybersecurity platform for fraud detection & intelligence. Protecting businesses from evolving threats with AI-powered analytics.
+                        </p>
+                        <div class="footer-social-links">
+                            <a href="#" class="social-link" title="Twitter"><i class="bi bi-twitter"></i></a>
+                            <a href="#" class="social-link" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                            <a href="#" class="social-link" title="GitHub"><i class="bi bi-github"></i></a>
+                            <a href="#" class="social-link" title="Email"><i class="bi bi-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform Section (20%) -->
+                <div class="col-lg-2 col-md-6 footer-section">
+                    <h6 class="footer-heading">Platform</h6>
+                    <ul class="footer-links">
+                        <li><a href="#features"><i class="bi bi-check2-circle me-2"></i>Features</a></li>
+                        <li><a href="#how-it-works"><i class="bi bi-gear me-2"></i>How It Works</a></li>
+                        <li><a href="#"><i class="bi bi-graph-up me-2"></i>Pricing</a></li>
+                        <li><a href="#"><i class="bi bi-globe me-2"></i>Use Cases</a></li>
+                        <li><a href="#"><i class="bi bi-book me-2"></i>Blog</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources Section (20%) -->
+                <div class="col-lg-2 col-md-6 footer-section">
+                    <h6 class="footer-heading">Resources</h6>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="bi bi-file-earmark-text me-2"></i>Documentation</a></li>
+                        <li><a href="#"><i class="bi bi-code-square me-2"></i>API Access</a></li>
+                        <li><a href="#"><i class="bi bi-robot me-2"></i>AI Models</a></li>
+                        <li><a href="{% url 'faq' %}"><i class="bi bi-question-circle me-2"></i>FAQ</a></li>
+                        <li><a href="{% url 'support' %}"><i class="bi bi-chat-dots me-2"></i>Support</a></li>
+                    </ul>
+                </div>
+
+                <!-- Insights Section (20%) -->
+                <div class="col-lg-2 col-md-6 footer-section">
+                    <h6 class="footer-heading">Insights</h6>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="bi bi-shield me-2"></i>Threat Intel</a></li>
+                        <li><a href="#"><i class="bi bi-bar-chart me-2"></i>Reports</a></li>
+                        <li><a href="#"><i class="bi bi-lightning-charge me-2"></i>Live Alerts</a></li>
+                        <li><a href="#"><i class="bi bi-people me-2"></i>Partners</a></li>
+                        <li><a href="#"><i class="bi bi-envelope-open me-2"></i>Newsletter</a></li>
+                    </ul>
+                </div>
+
+                <!-- Security & Compliance Section (25%) -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h6 class="footer-heading">Security & Compliance</h6>
+                    <div class="security-items">
+                        <div class="security-item">
+                            <i class="bi bi-shield-lock me-2"></i>
+                            <span>SSL</span>
+                        </div>
+                        <div class="security-item">
+                            <i class="bi bi-check-shield me-2"></i>
+                            <span>SOC 2</span>
+                        </div>
+                        <div class="security-item">
+                            <i class="bi bi-file-check me-2"></i>
+                            <span>GDPR</span>
+                        </div>
+                    </div>
+                    <ul class="footer-links mt-2">
+                        <li><a href="#"><i class="bi bi-shield me-2"></i>Privacy</a></li>
+                        <li><a href="#"><i class="bi bi-file-earmark-check me-2"></i>Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Full Footer Bottom -->
+            <div class="footer-divider"></div>
+            <div class="row full-footer-bottom">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="footer-bottom-text">
+                        <strong>Built for:</strong> Cybersecurity, Fraud Prevention & Law Enforcement
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="footer-copyright">
+                        &copy; Chakravyuh 2026 | All Rights Reserved
+                    </p>
+                </div>
+            </div>
+
+            {% elif user.is_authenticated %}
+            <!-- MINIMAL FOOTER - For Authenticated Users (After Login Pages) -->
+            <div class="row g-4 minimal-footer">
+                <!-- Quick Links -->
+                <div class="col-lg-6 col-md-6 footer-section">
+                    <h6 class="footer-heading">Quick Links</h6>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'dashboard' %}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+                        <li><a href="{% url 'accounts:profile' %}"><i class="bi bi-person-circle me-2"></i>Profile</a></li>
+                        <li><a href="{% url 'accounts:manage_2fa' %}"><i class="bi bi-shield-check me-2"></i>2FA Settings</a></li>
+                        <li><a href="{% url 'logs:audit_log_list' %}"><i class="bi bi-file-text me-2"></i>Audit Logs</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support & Settings -->
+                <div class="col-lg-6 col-md-6 footer-section">
+                    <h6 class="footer-heading">Support & Settings</h6>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'support' %}"><i class="bi bi-question-circle me-2"></i>Help Center</a></li>
+                        <li><a href="#"><i class="bi bi-gear me-2"></i>Preferences</a></li>
+                        <li><a href="#"><i class="bi bi-info-circle me-2"></i>System Status</a></li>
+                        <li><a href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Minimal Footer Bottom -->
+            <div class="footer-divider-minimal"></div>
+            <div class="row minimal-footer-bottom">
+                <div class="col-12">
+                    <p class="footer-bottom-text-minimal">
+                        <span class="footer-security-badge">
+                            <i class="bi bi-shield-lock me-1"></i>256-bit SSL Encrypted
+                        </span>
+                        <span class="footer-copyright-minimal">&copy; Chakravyuh 2026 | <a href="#">Privacy</a> | <a href="#">Terms</a></span>
+                    </p>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- FULL FOOTER - For Public/Home Page (Unauthenticated Users) -->
+            <div class="row g-4 full-footer">
+                <!-- Branding Section (35%) -->
+                <div class="col-lg-4 col-md-6 footer-branding">
+                    <div class="branding-content">
+                        <h5 class="footer-brand">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+                                <circle cx="12" cy="12" r="11" fill="url(#chakraGradient)" stroke="white" stroke-width="1"/>
+                                <path d="M8 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <defs>
+                                    <linearGradient id="chakraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#0ea5e9"/>
+                                        <stop offset="50%" style="stop-color:#f59e0b"/>
+                                        <stop offset="100%" style="stop-color:#0f172a"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            Chakravyuh
+                        </h5>
+                        <p class="footer-description">
+                            Advanced cybersecurity platform for fraud detection & intelligence. Protecting businesses from evolving threats with AI-powered analytics.
+                        </p>
+                        <div class="footer-social-links">
+                            <a href="#" class="social-link" title="Twitter"><i class="bi bi-twitter"></i></a>
+                            <a href="#" class="social-link" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                            <a href="#" class="social-link" title="GitHub"><i class="bi bi-github"></i></a>
+                            <a href="#" class="social-link" title="Email"><i class="bi bi-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform Section (20%) -->
+                <div class="col-lg-2 col-md-6 footer-section">
+                    <h6 class="footer-heading">Platform</h6>
+                    <ul class="footer-links">
+                        <li><a href="#features"><i class="bi bi-check2-circle me-2"></i>Features</a></li>
+                        <li><a href="#how-it-works"><i class="bi bi-gear me-2"></i>How It Works</a></li>
+                        <li><a href="#"><i class="bi bi-graph-up me-2"></i>Pricing</a></li>
+                        <li><a href="#"><i class="bi bi-globe me-2"></i>Use Cases</a></li>
+                        <li><a href="#"><i class="bi bi-book me-2"></i>Blog</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources Section (20%) -->
+                <div class="col-lg-2 col-md-6 footer-section">
+                    <h6 class="footer-heading">Resources</h6>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="bi bi-file-earmark-text me-2"></i>Documentation</a></li>
+                        <li><a href="#"><i class="bi bi-code-square me-2"></i>API Access</a></li>
+                        <li><a href="#"><i class="bi bi-robot me-2"></i>AI Models</a></li>
+                        <li><a href="{% url 'faq' %}"><i class="bi bi-question-circle me-2"></i>FAQ</a></li>
+                        <li><a href="{% url 'support' %}"><i class="bi bi-chat-dots me-2"></i>Support</a></li>
+                    </ul>
+                </div>
+
+                <!-- Insights Section (20%) -->
+                <div class="col-lg-2 col-md-6 footer-section">
+                    <h6 class="footer-heading">Insights</h6>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="bi bi-shield me-2"></i>Threat Intel</a></li>
+                        <li><a href="#"><i class="bi bi-bar-chart me-2"></i>Reports</a></li>
+                        <li><a href="#"><i class="bi bi-lightning-charge me-2"></i>Live Alerts</a></li>
+                        <li><a href="#"><i class="bi bi-people me-2"></i>Partners</a></li>
+                        <li><a href="#"><i class="bi bi-envelope-open me-2"></i>Newsletter</a></li>
+                    </ul>
+                </div>
+
+                <!-- Security & Compliance Section (25%) -->
+                <div class="col-lg-3 col-md-6 footer-section">
+                    <h6 class="footer-heading">Security & Compliance</h6>
+                    <div class="security-items">
+                        <div class="security-item">
+                            <i class="bi bi-shield-lock me-2"></i>
+                            <span>SSL</span>
+                        </div>
+                        <div class="security-item">
+                            <i class="bi bi-check-shield me-2"></i>
+                            <span>SOC 2</span>
+                        </div>
+                        <div class="security-item">
+                            <i class="bi bi-file-check me-2"></i>
+                            <span>GDPR</span>
+                        </div>
+                    </div>
+                    <ul class="footer-links mt-2">
+                        <li><a href="#"><i class="bi bi-shield me-2"></i>Privacy</a></li>
+                        <li><a href="#"><i class="bi bi-file-earmark-check me-2"></i>Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Full Footer Bottom -->
+            <div class="footer-divider"></div>
+            <div class="row full-footer-bottom">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="footer-bottom-text">
+                        <strong>Built for:</strong> Cybersecurity, Fraud Prevention & Law Enforcement
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="footer-copyright">
+                        &copy; Chakravyuh 2026 | All Rights Reserved
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bottom strip -->
+    <div class="footer-bottom-strip">
+        <div class="container-fluid">
+            <p class="footer-bottom-text">
+                {% if user.is_authenticated %}
+                    <i class="bi bi-shield-check me-1"></i>Secure Platform | Last login: {{ user.last_login|date:"M d, Y H:i" }}
+                {% else %}
+                    Advanced cybersecurity platform protecting businesses worldwide
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</footer>

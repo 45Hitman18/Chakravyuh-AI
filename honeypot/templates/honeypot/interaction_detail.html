@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Interaction Detail - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="h4 mb-1">Interaction Detail</h1>
+            <p class="text-muted mb-0">Conversation transcript</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if transcript %}
+                <pre class="mb-0">{{ transcript }}</pre>
+            {% else %}
+                <p class="text-muted mb-0">No transcript available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

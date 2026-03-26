@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: #0b1c2d; min-height: 100vh; padding-top: 64px; padding-left: 24px; padding-right: 24px;">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 style="color: #e5e7eb; font-size: 24px; margin-bottom: 8px;">Dashboard</h1>
+            <p style="color: #9ca3af; font-size: 14px; margin: 0;">your call safety overview</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4" style="gap: 16px;">
+        <div class="col" style="flex: 0 0 30%; max-width: 30%;">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 100px;">
+                <div class="card-body d-flex align-items-center justify-content-between p-3">
+                    <div>
+                        <h5 class="card-title mb-1" style="color: #e5e7eb; font-size: 14px;">Calls Analyzed</h5>
+                        <h2 class="mb-0" style="color: #3b82f6; font-size: 28px;">{{ total_calls }}</h2>
+                    </div>
+                    <i class="bi bi-telephone" style="font-size: 32px; color: #3b82f6;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col" style="flex: 0 0 30%; max-width: 30%;">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 100px;">
+                <div class="card-body d-flex align-items-center justify-content-between p-3">
+                    <div>
+                        <h5 class="card-title mb-1" style="color: #e5e7eb; font-size: 14px;">High Risk Alerts</h5>
+                        <h2 class="mb-0" style="color: #f97316; font-size: 28px;">{{ suspicious_alerts }}</h2>
+                    </div>
+                    <i class="bi bi-exclamation-triangle" style="font-size: 32px; color: #f59e0b;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col" style="flex: 0 0 30%; max-width: 30%;">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 100px;">
+                <div class="card-body d-flex align-items-center justify-content-between p-3">
+                    <div>
+                        <h5 class="card-title mb-1" style="color: #e5e7eb; font-size: 14px;">Confirmed Scams</h5>
+                        <h2 class="mb-0" style="color: #ef4444; font-size: 28px;">{{ total_scams }}</h2>
+                    </div>
+                    <i class="bi bi-shield-x" style="font-size: 32px; color: #ef4444;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="row mb-4" style="gap: 24px;">
+        <!-- Left Column - Activity & Uploads (65%) -->
+        <div class="col" style="flex: 0 0 65%; max-width: 65%;">
+            <!-- Upload Card -->
+            <div class="card mb-4" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3" style="color: #e5e7eb; font-size: 16px;">Upload Call Recording</h5>
+                    <p class="mb-4" style="color: #9ca3af; font-size: 14px;">Upload a recorded call to check for scam indicators</p>
+
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="caller_number" class="form-label" style="color: #e5e7eb; font-size: 13px;">Caller Number <span style="color: #ef4444;">*</span></label>
+                                <input type="tel" class="form-control" id="caller_number" name="caller_number" placeholder="e.g., +1234567890" required style="background: #1f2933; border: 2px solid #374151; color: #e5e7eb;">
+                                <small style="color: #9ca3af; font-size: 11px;">Enter the phone number of the caller</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="recipient_number" class="form-label" style="color: #e5e7eb; font-size: 13px;">Recipient Number <span style="color: #ef4444;">*</span></label>
+                                <input type="tel" class="form-control" id="recipient_number" name="recipient_number" placeholder="e.g., +9876543210" required style="background: #1f2933; border: 2px solid #374151; color: #e5e7eb;">
+                                <small style="color: #9ca3af; font-size: 11px;">Enter the phone number that received the call</small>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="audio_file" class="form-label" style="color: #e5e7eb; font-size: 13px;">Call Recording <span style="color: #ef4444;">*</span></label>
+                            <input type="file" class="form-control" id="audio_file" name="audio_file" accept="audio/*" required style="background: #1f2933; border: 2px solid #374151; color: #e5e7eb;">
+                            <div class="form-text" style="color: #9ca3af; font-size: 12px;">Supported formats: MP3, WAV, FLAC, AAC, OGG, M4A, MPEG (max 100MB)</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="uploadBtn" style="background: #3b82f6; border: none; padding: 8px 16px;">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            Upload & Analyze
+                        </button>
+                    </form>
+
+                    <!-- Progress Indicator -->
+                    <div id="uploadProgress" class="mt-3 d-none">
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" role="progressbar" style="width: 0%; background: #3b82f6;"></div>
+                        </div>
+                        <small class="text-muted mt-1" id="progressText" style="color: #9ca3af;">Uploading...</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3" style="color: #e5e7eb; font-size: 16px;">Recent Activity</h5>
+
+                    {% if recent_activities %}
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            {% for activity in recent_activities %}
+                                {% if activity.type == 'analysis' %}
+                                    <div class="d-flex align-items-center mb-3" style="padding: 8px 0; border-bottom: 1px solid #374151;">
+                                        <div class="me-3">
+                                            {% if activity.analysis.scam_probability.scam_level == 'low' %}
+                                                <div style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e;"></div>
+                                            {% elif activity.analysis.scam_probability.scam_level == 'medium' %}
+                                                <div style="width: 12px; height: 12px; border-radius: 50%; background: #fbbf24;"></div>
+                                            {% elif activity.analysis.scam_probability.scam_level == 'high' %}
+                                                <div style="width: 12px; height: 12px; border-radius: 50%; background: #f97316;"></div>
+                                            {% elif activity.analysis.scam_probability.scam_level == 'critical' %}
+                                                <div style="width: 12px; height: 12px; border-radius: 50%; background: #ef4444;"></div>
+                                            {% else %}
+                                                <div style="width: 12px; height: 12px; border-radius: 50%; background: #64748b;"></div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div style="color: #e5e7eb; font-size: 14px;">{{ activity.analysis.call_record.caller_number }} → {{ activity.analysis.call_record.recipient_number }}</div>
+                                            <div style="color: #9ca3af; font-size: 12px;">{{ activity.date|date:"M d, H:i" }}</div>
+                                        </div>
+                                        <div class="text-end">
+                                            {% if activity.analysis.scam_probability.scam_level == 'low' %}
+                                                <span style="color: #22c55e; font-size: 12px;">Safe</span>
+                                            {% elif activity.analysis.scam_probability.scam_level == 'medium' %}
+                                                <span style="color: #fbbf24; font-size: 12px;">Medium</span>
+                                            {% elif activity.analysis.scam_probability.scam_level == 'high' %}
+                                                <span style="color: #f97316; font-size: 12px;">High Risk</span>
+                                            {% elif activity.analysis.scam_probability.scam_level == 'critical' %}
+                                                <span style="color: #ef4444; font-size: 12px;">Critical</span>
+                                            {% else %}
+                                                <span style="color: #64748b; font-size: 12px;">Unknown</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% elif activity.type == 'upload' %}
+                                    <div class="d-flex align-items-center mb-3" style="padding: 8px 0; border-bottom: 1px solid #374151;">
+                                        <div class="me-3">
+                                            <i class="bi bi-file-earmark" style="font-size: 16px; color: #3b82f6;"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div style="color: #e5e7eb; font-size: 14px;">{{ activity.upload.call_record.caller_number }} → {{ activity.upload.call_record.recipient_number }}</div>
+                                            <div style="color: #9ca3af; font-size: 12px;">{{ activity.date|date:"M d, H:i" }}</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <span style="color: #9ca3af; font-size: 12px;">Uploaded</span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-upload" style="font-size: 48px; color: #9ca3af;"></i>
+                            <p class="mt-3" style="color: #9ca3af; font-size: 14px;">No activity yet. Upload a call to get started.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Safety Insights (35%) -->
+        <div class="col" style="flex: 0 0 35%; max-width: 35%;">
+            <!-- Last Result Summary -->
+            <div class="card mb-4" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h6 class="card-title mb-3" style="color: #e5e7eb; font-size: 14px;">Last Analysis Result</h6>
+                    {% if recent_analyses %}
+                        {% with last_analysis=recent_analyses.0 %}
+                            {% if last_analysis.scam_probability.scam_level == 'low' %}
+                                <p style="color: #22c55e; font-size: 14px;">✓ No scam indicators detected. Call appears safe.</p>
+                            {% elif last_analysis.scam_probability.scam_level == 'medium' %}
+                                <p style="color: #fbbf24; font-size: 14px;">⚠ Medium risk patterns detected. Exercise caution.</p>
+                            {% elif last_analysis.scam_probability.scam_level == 'high' %}
+                                <p style="color: #f97316; font-size: 14px;">⚠ High risk indicators found. Be very careful.</p>
+                            {% elif last_analysis.scam_probability.scam_level == 'critical' %}
+                                <p style="color: #ef4444; font-size: 14px;">⛔ Critical scam indicators detected! Avoid this caller.</p>
+                            {% else %}
+                                <p style="color: #64748b; font-size: 14px;">Analysis in progress or unknown risk level.</p>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <p style="color: #9ca3af; font-size: 14px;">Upload a call to see your safety status here.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Safety Tips -->
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h6 class="card-title mb-3" style="color: #e5e7eb; font-size: 14px;">Safety Tips</h6>
+                    <ul class="list-unstyled" style="padding: 0;">
+                        <li class="mb-2" style="color: #9ca3af; font-size: 14px;"><i class="bi bi-check-circle me-2" style="color: #22c55e;"></i>Never share OTP codes</li>
+                        <li class="mb-2" style="color: #9ca3af; font-size: 14px;"><i class="bi bi-check-circle me-2" style="color: #22c55e;"></i>Verify caller identity</li>
+                        <li class="mb-2" style="color: #9ca3af; font-size: 14px;"><i class="bi bi-check-circle me-2" style="color: #22c55e;"></i>Banks never ask for PINs</li>
+                        <li style="color: #9ca3af; font-size: 14px;"><i class="bi bi-check-circle me-2" style="color: #22c55e;"></i>Report suspicious calls</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts & Notifications -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 220px;">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3" style="color: #e5e7eb; font-size: 16px;">Alerts & Notifications</h5>
+
+                    {% if recent_notifications %}
+                        <div style="max-height: 140px; overflow-y: auto;">
+                            {% for notification in recent_notifications %}
+                                <div class="d-flex align-items-start mb-3" style="padding: 8px 0; border-bottom: 1px solid #374151;">
+                                    <i class="bi bi-info-circle me-3 mt-1" style="color: #3b82f6; font-size: 16px;"></i>
+                                    <div class="flex-grow-1">
+                                        <div style="color: #e5e7eb; font-size: 14px;">{{ notification.message }}</div>
+                                        <div style="color: #9ca3af; font-size: 12px;">{{ notification.created_at|date:"M d, H:i" }}</div>
+                                    </div>
+                                    <button class="btn btn-sm ms-2" style="background: none; border: none; color: #9ca3af;" onclick="dismissAlert({{ notification.id }})">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-bell" style="font-size: 32px; color: #9ca3af;"></i>
+                            <p class="mt-2" style="color: #9ca3af; font-size: 14px;">No new alerts</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Results Modal -->
+<div class="modal fade" id="analysisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background: #1f2933; border: 1px solid #374151; color: #e5e7eb;">
+            <div class="modal-header" style="border-bottom: 1px solid #374151;">
+                <h5 class="modal-title">Analysis Results</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="analysisResults">
+                <!-- Results will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle upload form submission
+    var uploadForm = document.getElementById('uploadForm');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+            var uploadBtn = document.getElementById('uploadBtn');
+            var progressDiv = document.getElementById('uploadProgress');
+            var progressBar = progressDiv.querySelector('.progress-bar');
+            var progressText = document.getElementById('progressText');
+
+            // Show loading state
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading...';
+
+            // Show progress
+            progressDiv.classList.remove('d-none');
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Uploading...';
+
+            fetch('{% url "dashboard_upload_audio" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    progressBar.style.width = '50%';
+                    progressText.textContent = 'Upload complete, starting analysis...';
+
+                    // Poll for analysis status
+                    pollAnalysisStatus(data.analysis_id);
+                } else {
+                    throw new Error('Upload failed');
+                }
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                progressText.textContent = 'Upload failed. Please try again.';
+                progressBar.classList.add('bg-danger');
+                resetUploadForm();
+            });
+        });
+    }
+
+    function pollAnalysisStatus(analysisId) {
+        var progressDiv = document.getElementById('uploadProgress');
+        var progressBar = progressDiv.querySelector('.progress-bar');
+        var progressText = document.getElementById('progressText');
+        var pollCount = 0;
+        var maxPolls = 60; // 60 polls * 2 seconds = 120 seconds timeout
+
+        var pollInterval = setInterval(function() {
+            pollCount++;
+            console.log(`Poll ${pollCount}/${maxPolls} for analysis ${analysisId}`);
+            
+            fetch(`/dashboard/analysis-status/${analysisId}/`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                console.log(`Status response: ${data.status}, score: ${data.scam_score}`);
+                
+                if (data.status === 'completed') {
+                    clearInterval(pollInterval);
+                    progressBar.style.width = '100%';
+                    progressText.textContent = 'Analysis complete!';
+                    console.log('Analysis completed successfully');
+
+                    // Show results in modal
+                    showAnalysisResults(data);
+
+                    // Reset form after a delay
+                    setTimeout(function() {
+                        resetUploadForm();
+                        location.reload(); // Refresh to show new data
+                    }, 3000);
+
+                } else if (data.status === 'processing') {
+                    progressBar.style.width = '75%';
+                    progressText.textContent = 'Analyzing audio...';
+                    
+                } else if (data.status === 'pending') {
+                    // Analysis hasn't started yet
+                    progressBar.style.width = `${30 + (pollCount % 20)}%`;
+                    progressText.textContent = 'Queuing analysis...';
+                    
+                } else if (data.status === 'failed') {
+                    clearInterval(pollInterval);
+                    progressText.textContent = `Analysis failed: ${data.error || 'Unknown error'}`;
+                    progressBar.classList.add('bg-danger');
+                    console.error('Analysis failed');
+                    resetUploadForm();
+                }
+                
+                // Timeout after 120 seconds
+                if (pollCount >= maxPolls) {
+                    clearInterval(pollInterval);
+                    progressText.textContent = 'Analysis timeout. Please try again.';
+                    progressBar.classList.add('bg-warning');
+                    resetUploadForm();
+                }
+            })
+            .catch(error => {
+                console.error('Status check error:', error);
+                clearInterval(pollInterval);
+                progressText.textContent = `Error checking status: ${error.message}`;
+                resetUploadForm();
+            });
+        }, 2000); // Poll every 2 seconds
+    }
+
+    function showAnalysisResults(data) {
+        var modal = document.getElementById('analysisModal');
+        var resultsDiv = document.getElementById('analysisResults');
+
+        var riskColor = 'success';
+        if (data.scam_score > 0.6) riskColor = 'danger';
+        else if (data.scam_score > 0.4) riskColor = 'warning';
+
+        resultsDiv.innerHTML = '<div class="alert alert-' + riskColor + '">' +
+            '<h5>Analysis Results</h5>' +
+            '<p><strong>Scam Probability:</strong> ' + (data.scam_score * 100).toFixed(1) + '%</p>' +
+            '<p><strong>Risk Level:</strong> ' + (data.scam_level || 'Unknown') + '</p>' +
+            '<p><strong>Confidence Score:</strong> ' + (data.confidence_score * 100).toFixed(1) + '%</p>' +
+            '</div>';
+
+        var bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    }
+
+    function resetUploadForm() {
+        var uploadBtn = document.getElementById('uploadBtn');
+        var progressDiv = document.getElementById('uploadProgress');
+
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = 'Upload & Analyze';
+        progressDiv.classList.add('d-none');
+
+        // Reset form
+        document.getElementById('uploadForm').reset();
+    }
+
+    function dismissAlert(notificationId) {
+        // Simple dismiss - in real implementation, this would call an API
+        event.target.closest('.d-flex').remove();
+    }
+});
+</script>
+{% endblock %}

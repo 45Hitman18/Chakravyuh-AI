@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Scammer Profiles - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="h4 mb-1">Scammer Profiles</h1>
+            <p class="text-muted mb-0">Known scammer records</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if page_obj %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Risk</th>
+                                <th>First Seen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for profile in page_obj %}
+                                <tr>
+                                    <td>{{ profile.phone_number }}</td>
+                                    <td>{{ profile.get_status_display }}</td>
+                                    <td>{{ profile.risk_score }}</td>
+                                    <td>{{ profile.first_seen|date:"Y-m-d" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No scammer profiles yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

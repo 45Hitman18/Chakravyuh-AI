@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+
+{% block title %}Setup Two-Factor Authentication - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: #0b1c2d; min-height: 100vh; padding-top: 64px; padding-left: 24px; padding-right: 24px; padding-bottom: 40px;">
+    <!-- Messages -->
+    {% if messages %}
+    <div class="row mb-4" style="max-width: 1000px; margin-left: auto; margin-right: auto;">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="background: {% if message.tags == 'success' %}#22c55e20{% elif message.tags == 'error' %}#ef444420{% else %}#3b82f520{% endif %}; border: 1px solid {% if message.tags == 'success' %}#22c55e{% elif message.tags == 'error' %}#ef4444{% else %}#3b82f5{% endif %}; color: {% if message.tags == 'success' %}#22c55e{% elif message.tags == 'error' %}#ef4444{% else %}#3b82f5{% endif %}; border-radius: 8px;">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(1);"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <!-- Page Header -->
+    <div class="row mb-5" style="max-width: 1000px; margin-left: auto; margin-right: auto;">
+        <div class="col-12">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h1 style="color: #e5e7eb; font-size: 32px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center;">
+                        <span style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); padding: 12px 16px; border-radius: 10px; margin-right: 16px; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px;">
+                            <i class="bi bi-shield-lock" style="color: #ffffff; font-size: 24px;"></i>
+                        </span>
+                        Setup Two-Factor Authentication
+                    </h1>
+                    <p style="color: #9ca3af; font-size: 15px; margin: 0; margin-left: 64px;">Secure your account with OTP protection</p>
+                </div>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-sm" style="background: transparent; color: #e5e7eb; border: 1px solid #374151; padding: 10px 16px; font-weight: 600; border-radius: 8px; transition: all 0.2s;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Setup Content -->
+    <div class="row justify-content-center">
+        <div class="col-12" style="max-width: 1000px;">
+            {% if device %}
+                <!-- Setup Active - Show QR Code -->
+                
+                <!-- Step Indicator -->
+                <div style="display: flex; gap: 16px; margin-bottom: 40px; justify-content: center; align-items: center;">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px;">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                        <span style="color: #9ca3af; font-size: 12px; font-weight: 600;">Download App</span>
+                    </div>
+                    <div style="width: 40px; height: 2px; background: #374151; margin-bottom: 24px;"></div>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;">2</div>
+                        <span style="color: #e5e7eb; font-size: 12px; font-weight: 700;">Scan & Verify</span>
+                    </div>
+                    <div style="width: 40px; height: 2px; background: #374151; margin-bottom: 24px;"></div>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #374151; color: #9ca3af; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;">3</div>
+                        <span style="color: #9ca3af; font-size: 12px; font-weight: 600;">Complete</span>
+                    </div>
+                </div>
+
+                <div class="row" style="gap: 28px; margin-bottom: 32px;">
+                    <!-- QR Code Section -->
+                    <div class="col" style="flex: 0 0 52%; max-width: 52%;">
+                        <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+                            <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); border: none; color: #ffffff; padding: 22px 28px; font-size: 18px;">
+                                <h6 class="mb-0" style="font-weight: 700; font-size: 16px;">
+                                    <i class="bi bi-qr-code me-2"></i>Scan QR Code
+                                </h6>
+                            </div>
+                            <div class="card-body p-6" style="text-align: center; padding: 36px; background: #0f1419;">
+                                <p style="color: #9ca3af; font-size: 14px; margin-bottom: 28px; font-weight: 500;">
+                                    Use an authenticator app to scan this code:
+                                </p>
+                                {% if qr_code_base64 %}
+                                    <div style="background: #ffffff; padding: 18px; border-radius: 14px; display: inline-block; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);">
+                                        <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="QR Code" style="width: 240px; height: 240px; display: block;">
+                                    </div>
+                                    <div style="margin-top: 24px; padding: 14px; background: #1f2933; border-radius: 10px; border: 1px solid #374151;">
+                                        <p style="color: #9ca3af; font-size: 12px; margin: 0; line-height: 1.6;">
+                                            <i class="bi bi-info-circle me-2" style="color: #3b82f6; font-size: 14px;"></i>
+                                            <strong style="color: #e5e7eb;">Recommended Apps:</strong><br>
+                                            <span style="color: #6b7280;">Google Authenticator • Microsoft Authenticator • Authy</span>
+                                        </p>
+                                    </div>
+                                {% else %}
+                                    <div style="background: #ef444420; border: 2px solid #ef4444; color: #ef4444; padding: 24px; border-radius: 12px;">
+                                        <i class="bi bi-exclamation-triangle me-2"></i>
+                                        <strong>Unable to generate QR code</strong>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Entry & Instructions -->
+                    <div class="col" style="flex: 0 0 46%; max-width: 46%;">
+                        <!-- Manual Entry Card -->
+                        <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 14px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+                            <div class="card-header" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); border: none; color: #ffffff; padding: 22px 28px;">
+                                <h6 class="mb-0" style="font-weight: 700; font-size: 16px;">
+                                    <i class="bi bi-key me-2"></i>Manual Entry
+                                </h6>
+                            </div>
+                            <div class="card-body p-6" style="padding: 28px; background: #0f1419;">
+                                <p style="color: #9ca3af; font-size: 13px; margin-bottom: 18px; font-weight: 500;">
+                                    Can't scan? Enter this key manually:
+                                </p>
+                                <div style="background: #1f2933; border: 2px solid #374151; padding: 16px; border-radius: 10px; font-family: 'Courier New', monospace; color: #22c55e; word-break: break-all; font-weight: 600; font-size: 13px; text-align: center; letter-spacing: 1.5px; line-height: 1.8;">
+                                    {{ device.key }}
+                                </div>
+                                <p style="color: #6b7280; font-size: 11px; margin-top: 14px; margin-bottom: 0;">
+                                    <i class="bi bi-info-circle me-1" style="color: #3b82f6;"></i>
+                                    <strong>Type:</strong> Time-based One-Time Password (TOTP)
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Setup Instructions -->
+                        <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+                            <div class="card-header" style="background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%); border: none; color: #0b1c2d; padding: 22px 28px;">
+                                <h6 class="mb-0" style="font-weight: 700; font-size: 16px;">
+                                    <i class="bi bi-list-check me-2"></i>Setup Instructions
+                                </h6>
+                            </div>
+                            <div class="card-body p-6" style="padding: 28px; background: #0f1419;">
+                                <ol style="color: #9ca3af; font-size: 13px; margin: 0; padding-left: 24px; line-height: 2;">
+                                    <li style="margin-bottom: 8px;">
+                                        <strong style="color: #e5e7eb;">Download</strong> an authenticator app
+                                    </li>
+                                    <li style="margin-bottom: 8px;">
+                                        <strong style="color: #e5e7eb;">Scan</strong> the QR code with your app
+                                    </li>
+                                    <li style="margin-bottom: 8px;">
+                                        <strong style="color: #e5e7eb;">Enter</strong> the 6-digit code below
+                                    </li>
+                                    <li>
+                                        <strong style="color: #e5e7eb;">Save</strong> your recovery codes
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verification Form -->
+                <form method="POST" action="{% url 'accounts:setup_otp' %}">
+                    {% csrf_token %}
+                    <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 14px; overflow: hidden; margin-bottom: 32px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+                        <div class="card-header" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); border: none; color: #ffffff; padding: 22px 28px;">
+                            <h6 class="mb-0" style="font-weight: 700; font-size: 16px;">
+                                <i class="bi bi-check-circle me-2"></i>Verify & Complete
+                            </h6>
+                        </div>
+                        <div class="card-body p-6" style="padding: 36px; background: #0f1419;">
+                            <div class="mb-5">
+                                <label style="color: #e5e7eb; font-weight: 700; display: block; margin-bottom: 16px; font-size: 15px;">
+                                    Enter 6-Digit Code from Your App
+                                </label>
+                                <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px;">
+                                    <input type="text" id="otp1" maxlength="1" pattern="[0-9]" style="width: 50px; height: 60px; background: #1f2933; border: 2px solid #374151; color: #22c55e; border-radius: 12px; font-size: 28px; text-align: center; font-weight: 700; transition: border-color 0.2s; font-family: 'Courier New', monospace;" required>
+                                    <input type="text" id="otp2" maxlength="1" pattern="[0-9]" style="width: 50px; height: 60px; background: #1f2933; border: 2px solid #374151; color: #22c55e; border-radius: 12px; font-size: 28px; text-align: center; font-weight: 700; transition: border-color 0.2s; font-family: 'Courier New', monospace;" required>
+                                    <input type="text" id="otp3" maxlength="1" pattern="[0-9]" style="width: 50px; height: 60px; background: #1f2933; border: 2px solid #374151; color: #22c55e; border-radius: 12px; font-size: 28px; text-align: center; font-weight: 700; transition: border-color 0.2s; font-family: 'Courier New', monospace;" required>
+                                    <input type="text" id="otp4" maxlength="1" pattern="[0-9]" style="width: 50px; height: 60px; background: #1f2933; border: 2px solid #374151; color: #22c55e; border-radius: 12px; font-size: 28px; text-align: center; font-weight: 700; transition: border-color 0.2s; font-family: 'Courier New', monospace;" required>
+                                    <input type="text" id="otp5" maxlength="1" pattern="[0-9]" style="width: 50px; height: 60px; background: #1f2933; border: 2px solid #374151; color: #22c55e; border-radius: 12px; font-size: 28px; text-align: center; font-weight: 700; transition: border-color 0.2s; font-family: 'Courier New', monospace;" required>
+                                    <input type="text" id="otp6" maxlength="1" pattern="[0-9]" style="width: 50px; height: 60px; background: #1f2933; border: 2px solid #374151; color: #22c55e; border-radius: 12px; font-size: 28px; text-align: center; font-weight: 700; transition: border-color 0.2s; font-family: 'Courier New', monospace;" required>
+                                </div>
+                                <input type="hidden" name="token" id="token" required>
+                                <small style="color: #9ca3af; display: block; margin-top: 12px; font-size: 12px;">
+                                    <i class="bi bi-info-circle me-1"></i>Enter the current 6-digit code from your authenticator app
+                                </small>
+                            </div>
+                            <div class="d-grid gap-3">
+                                <button type="submit" class="btn" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); color: #ffffff; border: none; padding: 16px; font-weight: 700; border-radius: 10px; font-size: 15px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3); cursor: pointer;">
+                                    <i class="bi bi-check-lg me-2"></i>Verify & Enable 2FA
+                                </button>
+                                <a href="{% url 'accounts:profile' %}" class="btn" style="background: transparent; color: #e5e7eb; border: 1px solid #374151; padding: 16px; font-weight: 600; border-radius: 10px; font-size: 15px; transition: all 0.2s; cursor: pointer;">
+                                    <i class="bi bi-x-lg me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Important Security Notes -->
+                <div class="card" style="background: #111827; border: 2px solid #f59e0b; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.1);">
+                    <div class="card-body p-6" style="padding: 28px;">
+                        <div style="display: flex; gap: 18px;">
+                            <div style="font-size: 32px; color: #f59e0b; flex-shrink: 0; margin-top: 2px;">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <h6 style="color: #f59e0b; margin-bottom: 14px; font-weight: 700; font-size: 15px;">
+                                    Important Security Notes
+                                </h6>
+                                <ul style="color: #9ca3af; font-size: 13px; margin: 0; padding-left: 24px; line-height: 1.9;">
+                                    <li style="margin-bottom: 10px;">Save your recovery codes in a secure location (they are the only backup if you lose your device)</li>
+                                    <li style="margin-bottom: 10px;">Do not share your OTP codes or recovery codes with anyone</li>
+                                    <li style="margin-bottom: 10px;">Once enabled, you'll need to enter a 6-digit code whenever you login</li>
+                                    <li>Keep your authenticator app updated for the latest security patches</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% else %}
+                <!-- Initial Setup - No Device Yet -->
+                <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 14px; overflow: hidden;">
+                    <div class="card-body p-6" style="padding: 40px;">
+                        <div style="text-align: center; margin-bottom: 40px;">
+                            <div style="font-size: 56px; color: #8b5cf6; margin-bottom: 20px;">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <h3 style="color: #e5e7eb; margin-bottom: 12px; font-size: 24px; font-weight: 700;">Secure Your Account</h3>
+                            <p style="color: #9ca3af; font-size: 15px;">Add an extra layer of security with Two-Factor Authentication</p>
+                        </div>
+
+                        <div class="row mb-5" style="gap: 16px;">
+                            <div class="col" style="flex: 0 0 calc(50% - 8px); max-width: calc(50% - 8px);">
+                                <div style="background: #1f2933; padding: 24px; border-radius: 12px; border: 1px solid #374151; transition: all 0.2s;">
+                                    <div style="color: #3b82f6; font-size: 32px; margin-bottom: 16px;">
+                                        <i class="bi bi-shield-lock"></i>
+                                    </div>
+                                    <h6 style="color: #e5e7eb; margin-bottom: 10px; font-weight: 700; font-size: 15px;">What is 2FA?</h6>
+                                    <p style="color: #9ca3af; font-size: 13px; margin: 0; line-height: 1.6;">
+                                        Two-factor authentication requires both your password and a code from your phone to login, making your account much more secure.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col" style="flex: 0 0 calc(50% - 8px); max-width: calc(50% - 8px);">
+                                <div style="background: #1f2933; padding: 24px; border-radius: 12px; border: 1px solid #374151; transition: all 0.2s;">
+                                    <div style="color: #22c55e; font-size: 32px; margin-bottom: 16px;">
+                                        <i class="bi bi-check-circle"></i>
+                                    </div>
+                                    <h6 style="color: #e5e7eb; margin-bottom: 10px; font-weight: 700; font-size: 15px;">Easy Setup</h6>
+                                    <p style="color: #9ca3af; font-size: 13px; margin: 0; line-height: 1.6;">
+                                        Takes less than 2 minutes to set up. Scan a QR code with your phone and you're protected.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: #1f2933; padding: 28px; border-radius: 12px; border: 1px solid #374151; margin-bottom: 32px;">
+                            <h6 style="color: #e5e7eb; margin-bottom: 20px; font-weight: 700; font-size: 15px;">
+                                <i class="bi bi-star me-2" style="color: #f59e0b;"></i>Recommended Authenticator Apps
+                            </h6>
+                            <div class="row" style="gap: 12px;">
+                                <div class="col">
+                                    <div style="background: #111827; padding: 20px; border-radius: 10px; border: 1px solid #374151; text-align: center; transition: all 0.2s;">
+                                        <div style="font-size: 28px; color: #3b82f6; margin-bottom: 10px;">
+                                            <i class="bi bi-google"></i>
+                                        </div>
+                                        <small style="color: #9ca3af; font-weight: 600; font-size: 12px;">Google<br>Authenticator</small>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div style="background: #111827; padding: 20px; border-radius: 10px; border: 1px solid #374151; text-align: center; transition: all 0.2s;">
+                                        <div style="font-size: 28px; color: #22c55e; margin-bottom: 10px;">
+                                            <i class="bi bi-microsoft"></i>
+                                        </div>
+                                        <small style="color: #9ca3af; font-weight: 600; font-size: 12px;">Microsoft<br>Authenticator</small>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div style="background: #111827; padding: 20px; border-radius: 10px; border: 1px solid #374151; text-align: center; transition: all 0.2s;">
+                                        <div style="font-size: 28px; color: #8b5cf6; margin-bottom: 10px;">
+                                            <i class="bi bi-shield-check"></i>
+                                        </div>
+                                        <small style="color: #9ca3af; font-weight: 600; font-size: 12px;">Authy</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{% url 'accounts:setup_otp' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn w-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); color: #ffffff; border: none; padding: 16px; font-weight: 700; border-radius: 10px; font-size: 16px; transition: all 0.2s; cursor: pointer;">
+                                <i class="bi bi-shield-lock me-2"></i>Get Started with 2FA Setup
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 14px; overflow: hidden;">
+                            <div class="card-body p-6" style="padding: 24px;">
+                                <h6 style="color: #e5e7eb; margin-bottom: 12px; font-weight: 700; font-size: 15px;">
+                                    <i class="bi bi-question-circle me-2"></i>Need Help?
+                                </h6>
+                                <p style="color: #9ca3af; font-size: 13px; margin: 0; line-height: 1.6;">
+                                    If you encounter any issues, you can disable 2FA from your <a href="{% url 'accounts:manage_2fa' %}" style="color: #3b82f5; text-decoration: none; font-weight: 600;">2FA management page</a> at any time. For additional support, contact our help center.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const otpInputs = document.querySelectorAll('#otp1, #otp2, #otp3, #otp4, #otp5, #otp6');
+    const tokenInput = document.getElementById('token');
+
+    function updateToken() {
+        let token = '';
+        otpInputs.forEach(input => {
+            token += input.value;
+        });
+        tokenInput.value = token;
+    }
+
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', function(e) {
+            // Allow only numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Move to next input if a digit is entered
+            if (this.value.length === 1 && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
+
+            updateToken();
+        });
+
+        input.addEventListener('keydown', function(e) {
+            // Handle backspace
+            if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+        });
+
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            const digits = paste.replace(/[^0-9]/g, '').slice(0, 6);
+
+            digits.split('').forEach((digit, i) => {
+                if (otpInputs[index + i]) {
+                    otpInputs[index + i].value = digit;
+                }
+            });
+
+            // Focus the next empty input or the last one
+            const nextIndex = Math.min(index + digits.length, otpInputs.length - 1);
+            otpInputs[nextIndex].focus();
+
+            updateToken();
+        });
+    });
+
+    // Focus first input on load
+    if (otpInputs.length > 0) {
+        otpInputs[0].focus();
+    }
+});
+</script>
+
+<style>
+    .btn:hover {
+        opacity: 0.85 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .btn:active {
+        transform: translateY(0) !important;
+    }
+    
+    input[type="text"]:focus {
+        border-color: #8b5cf6 !important;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15) !important;
+        outline: none !important;
+    }
+    
+    .card {
+        transition: all 0.2s ease;
+    }
+    
+    .card:hover {
+        border-color: #4b5563 !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+    }
+    
+    [style*="background: #1f2933"]:hover {
+        background: #2a3a4a !important;
+    }
+    
+    @media (max-width: 768px) {
+        .col {
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+        
+        h1 {
+            font-size: 24px !important;
+        }
+    }
+</style>
+{% endblock %}

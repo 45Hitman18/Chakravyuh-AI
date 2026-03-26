@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title|default:"Edit Honeypot Session" }} - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="h4 mb-1">{{ title|default:"Edit Honeypot Session" }}</h1>
+            <p class="text-muted mb-0">Update session details</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

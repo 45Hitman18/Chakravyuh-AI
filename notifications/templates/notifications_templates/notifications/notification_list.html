@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h4 mb-1">Notifications</h1>
+            <p class="text-muted mb-0">Recent system alerts and updates</p>
+        </div>
+        <form method="post" action="{% url 'notifications:mark_all_read' %}">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Mark all as read</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if page_obj %}
+                <ul class="list-group list-group-flush">
+                    {% for notification in page_obj %}
+                        <li class="list-group-item d-flex align-items-start justify-content-between">
+                            <div>
+                                <div class="fw-semibold">{{ notification.title }}</div>
+                                <div class="text-muted">{{ notification.message }}</div>
+                                <small class="text-muted">{{ notification.created_at|date:"Y-m-d H:i" }}</small>
+                            </div>
+                            <div class="ms-3 text-end">
+                                {% if not notification.is_read %}
+                                    <form method="post" action="{% url 'notifications:mark_notification_read' notification.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-primary" type="submit">Mark read</button>
+                                    </form>
+                                {% else %}
+                                    <span class="badge bg-secondary">Read</span>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-muted">No notifications yet.</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted mb-0">No notifications yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

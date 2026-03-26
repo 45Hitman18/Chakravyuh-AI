@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: #0b1220; min-height: 100vh; padding-top: 64px; padding-left: 24px; padding-right: 24px;">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 style="color: #e2e8f0; font-size: 24px; margin-bottom: 6px;">Profile</h1>
+                <p style="color: #94a3b8; font-size: 14px; margin: 0;">Account overview & security settings</p>
+            </div>
+            <div class="d-flex gap-2">
+                {% if not otp_enabled %}
+                <a class="btn btn-sm" href="{% url 'accounts:setup_otp' %}" style="background: #22c55e; color: #0b1220; border: none; padding: 8px 14px; font-weight: 600;">
+                    <i class="bi bi-shield-check me-1"></i> Enable 2FA
+                </a>
+                {% endif %}
+                <a class="btn btn-sm" href="{% url 'accounts:logout' %}" style="background: #ef4444; color: #ffffff; border: none; padding: 8px 14px; font-weight: 600;">
+                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Summary -->
+    <div class="row mb-4" style="gap: 16px;">
+        <div class="col" style="flex: 0 0 38%; max-width: 38%;">
+            <div class="card" style="background: #0f1a2b; border: 1px solid #24324a; border-radius: 12px;">
+                <div class="card-body p-4 d-flex align-items-center">
+                    <div class="d-flex align-items-center justify-content-center me-4" style="width: 72px; height: 72px; border-radius: 50%; background: #16243b; color: #e2e8f0; font-size: 24px; font-weight: 700;">
+                        {% if user.first_name or user.last_name %}
+                            {{ user.first_name|default:""|slice:":1" }}{{ user.last_name|default:""|slice:":1" }}
+                        {% else %}
+                            {{ user.username|slice:":2"|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div style="color: #e2e8f0; font-size: 18px; font-weight: 600;">
+                            {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}
+                        </div>
+                        <div style="color: #94a3b8; font-size: 13px;">{{ user.email }}</div>
+                        <div class="mt-2">
+                            <span class="badge" style="background: #38bdf8; color: #ffffff; font-size: 0.7rem;">{{ user.get_role_display }}</span>
+                            {% if user.is_staff %}
+                            <span class="badge" style="background: #14b8a6; color: #ffffff; font-size: 0.7rem;">Staff</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col" style="flex: 0 0 60%; max-width: 60%;">
+            <div class="card" style="background: #0f1a2b; border: 1px solid #24324a; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0" style="color: #e2e8f0; font-size: 14px;">Security Status</h6>
+                        {% if otp_enabled %}
+                        <span class="badge" style="background: #22c55e; color: #0b1220; font-size: 0.7rem;">2FA Enabled</span>
+                        {% else %}
+                        <span class="badge" style="background: #f59e0b; color: #0b1220; font-size: 0.7rem;">2FA Disabled</span>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div style="color: #94a3b8; font-size: 12px;">OTP Devices</div>
+                            <div style="color: #e2e8f0; font-size: 18px; font-weight: 600;">{{ otp_device_count }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div style="color: #94a3b8; font-size: 12px;">Last Login</div>
+                            <div style="color: #e2e8f0; font-size: 14px;">{% if user.last_login %}{{ user.last_login|date:"M d, H:i" }}{% else %}Never{% endif %}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div style="color: #94a3b8; font-size: 12px;">Member Since</div>
+                            <div style="color: #e2e8f0; font-size: 14px;">{{ user.date_joined|date:"M d, Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Details -->
+    <div class="row mb-4" style="gap: 16px;">
+        <div class="col" style="flex: 0 0 60%; max-width: 60%;">
+            <div class="card" style="background: #0f1a2b; border: 1px solid #24324a; border-radius: 12px;">
+                <div class="card-header" style="background: #16243b; border-bottom: 1px solid #24324a; color: #e2e8f0;">
+                    <h6 class="mb-0">Account Details</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item" style="background: #0f1a2b; color: #e2e8f0; border-bottom: 1px solid #24324a;">
+                            <div class="d-flex justify-content-between">
+                                <span style="color: #94a3b8;">Username</span>
+                                <span>{{ user.username }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item" style="background: #0f1a2b; color: #e2e8f0; border-bottom: 1px solid #24324a;">
+                            <div class="d-flex justify-content-between">
+                                <span style="color: #94a3b8;">Email</span>
+                                <span>{{ user.email }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item" style="background: #0f1a2b; color: #e2e8f0; border-bottom: 1px solid #24324a;">
+                            <div class="d-flex justify-content-between">
+                                <span style="color: #94a3b8;">Role</span>
+                                <span>{{ user.get_role_display }}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item" style="background: #0f1a2b; color: #e2e8f0; border-bottom: 1px solid #24324a;">
+                            <div class="d-flex justify-content-between">
+                                <span style="color: #94a3b8;">Full Name</span>
+                                <span>{% if user.get_full_name %}{{ user.get_full_name }}{% else %}-{% endif %}</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item" style="background: #0f1a2b; color: #e2e8f0;">
+                            <div class="d-flex justify-content-between">
+                                <span style="color: #94a3b8;">Status</span>
+                                <span class="badge" style="background: {% if user.is_active %}#22c55e{% else %}#ef4444{% endif %}; color: #0b1220;">{% if user.is_active %}Active{% else %}Inactive{% endif %}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col" style="flex: 0 0 38%; max-width: 38%;">
+            <div class="card" style="background: #0f1a2b; border: 1px solid #24324a; border-radius: 12px;">
+                <div class="card-header" style="background: #16243b; border-bottom: 1px solid #24324a; color: #e2e8f0;">
+                    <h6 class="mb-0">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a class="btn" href="{% url 'accounts:manage_2fa' %}" style="background: #16243b; color: #e2e8f0; border: 1px solid #24324a;">
+                            <i class="bi bi-shield-lock me-2"></i>Manage Two-Factor Auth
+                        </a>
+                        <a class="btn" href="{% url 'dashboard' %}" style="background: #16243b; color: #e2e8f0; border: 1px solid #24324a;">
+                            <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                        </a>
+                        <a class="btn" href="{% url 'accounts:logout' %}" style="background: #ef4444; color: #ffffff; border: none;">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

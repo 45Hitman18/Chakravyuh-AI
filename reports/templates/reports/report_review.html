@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Report - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="h4 mb-1">Review Report</h1>
+            <p class="text-muted mb-0">Update status for {{ report.title }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Internal notes</label>
+                    <textarea name="internal_notes" class="form-control" rows="4">{{ report.internal_notes }}</textarea>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-secondary" name="action" value="under_review" type="submit">Mark under review</button>
+                    <button class="btn btn-success" name="action" value="approve" type="submit">Approve</button>
+                    <button class="btn btn-danger" name="action" value="reject" type="submit">Reject</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

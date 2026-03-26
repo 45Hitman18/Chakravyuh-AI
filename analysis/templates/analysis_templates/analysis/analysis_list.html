@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block title %}Analysis - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: #0b1c2d; min-height: 100vh; padding-top: 64px; padding-left: 24px; padding-right: 24px;">
+    <!-- Page Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="fw-medium" style="color: #e5e7eb; font-size: 24px; margin-bottom: 8px;">Analysis</h1>
+            <p style="color: #9ca3af; font-size: 14px; margin: 0;">AI-based fraud evaluation & explainability</p>
+        </div>
+    </div>
+
+    <!-- Summary Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 10px; height: 100px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small mb-1" style="color: #9ca3af;">Total Analyses</div>
+                        <div class="h3 mb-0" style="color: #3b82f6;">{{ total_analyses }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-bar-chart-line" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 10px; height: 100px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small mb-1" style="color: #9ca3af;">Safe Results</div>
+                        <div class="h3 mb-0" style="color: #22c55e;">{{ safe_results }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-shield-check" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 10px; height: 100px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small mb-1" style="color: #9ca3af;">Suspicious</div>
+                        <div class="h3 mb-0" style="color: #f59e0b;">{{ suspicious_results }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 10px; height: 100px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="text-muted small mb-1" style="color: #9ca3af;">Fraud Confirmed</div>
+                        <div class="h3 mb-0" style="color: #ef4444;">{{ fraud_confirmed }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-x-octagon" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Analysis Workspace -->
+    <div class="row mb-4">
+        <!-- Left Column - Analysis List (65%) -->
+        <div class="col-md-8">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 10px; height: 420px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">Analysis Results</h5>
+                </div>
+                <div class="card-body p-0" style="height: calc(420px - 60px); overflow-y: auto;">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0" style="background: #111827;">
+                            <thead style="background: #1f2933; position: sticky; top: 0; z-index: 10;">
+                                <tr>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Analysis ID</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Source</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Timestamp</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Risk Level</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Confidence</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody style="background: #111827;">
+                                {% for analysis in analysis_list %}
+                                <tr class="analysis-row" data-analysis-id="{{ analysis.id }}" style="background: #1a2332; border-bottom: 1px solid #374151; cursor: pointer;" onmouseover="this.style.backgroundColor='#233044'" onmouseout="this.style.backgroundColor='#1a2332'">
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ analysis.analysis_id }}</td>
+                                    <td style="background: #1a2332; color: #d1d5db; padding: 12px;">{{ analysis.source }}</td>
+                                    <td style="background: #1a2332; color: #d1d5db; padding: 12px;">{{ analysis.timestamp|date:"M d, H:i" }}</td>
+                                    <td style="background: #1a2332; padding: 12px;">
+                                        <span class="badge" style="background: {% if analysis.status == 'low' %}#22c55e{% elif analysis.status == 'medium' %}#fbbf24{% elif analysis.status == 'high' %}#f97316{% elif analysis.status == 'critical' %}#ef4444{% else %}#64748b{% endif %}; color: white; font-size: 0.7rem;">
+                                            {{ analysis.risk_level }}
+                                        </span>
+                                    </td>
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ analysis.confidence|floatformat:1 }}%</td>
+                                    <td style="background: #1a2332; padding: 12px;">
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle me-2" style="width: 8px; height: 8px; background: {% if analysis.status == 'low' %}#22c55e{% elif analysis.status == 'medium' %}#fbbf24{% elif analysis.status == 'high' %}#f97316{% elif analysis.status == 'critical' %}#ef4444{% else %}#64748b{% endif %};"></div>
+                                            <small style="color: #d1d5db;">{{ analysis.status|title }}</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Explainability Panel (35%) -->
+        <div class="col-md-4">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 10px; height: 420px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">AI Explainability</h5>
+                </div>
+                <div class="card-body" id="explainability-panel" style="height: calc(420px - 60px); overflow-y: auto;">
+                    <!-- Default state -->
+                    <div class="text-center py-5" style="color: #9ca3af;">
+                        <i class="bi bi-robot fs-1 mb-3"></i>
+                        <p class="mb-0">Select an analysis to view AI reasoning</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pattern & Timeline Section -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 10px; height: 260px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">Detected Patterns</h5>
+                </div>
+                <div class="card-body" style="height: calc(260px - 60px); overflow-y: auto;">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item" style="background: transparent; border: none; color: #e5e7eb;">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle me-3" style="width: 8px; height: 8px; background: #f59e0b;"></div>
+                                <span>Impersonation attempts</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item" style="background: transparent; border: none; color: #e5e7eb;">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle me-3" style="width: 8px; height: 8px; background: #ef4444;"></div>
+                                <span>Urgency pressure tactics</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item" style="background: transparent; border: none; color: #e5e7eb;">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle me-3" style="width: 8px; height: 8px; background: #22c55e;"></div>
+                                <span>Repeated callback patterns</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item" style="background: transparent; border: none; color: #e5e7eb;">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle me-3" style="width: 8px; height: 8px; background: #f59e0b;"></div>
+                                <span>Known scam signatures</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 10px; height: 260px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">Analysis Timeline</h5>
+                </div>
+                <div class="card-body" style="height: calc(260px - 60px); overflow-y: auto;">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="time-label" style="color: #9ca3af;">0:00</div>
+                            <div style="color: #e5e7eb;">Call received & logged</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="time-label" style="color: #9ca3af;">0:15</div>
+                            <div style="color: #e5e7eb;">Audio preprocessing</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="time-label" style="color: #9ca3af;">0:30</div>
+                            <div style="color: #e5e7eb;">Pattern matching</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="time-label" style="color: #9ca3af;">0:45</div>
+                            <div style="color: #e5e7eb;">Risk scoring & final decision</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle analysis row clicks
+    document.querySelectorAll('.analysis-row').forEach(row => {
+        row.addEventListener('click', function() {
+            const analysisId = this.dataset.analysisId;
+            loadExplainability(analysisId);
+        });
+    });
+
+    function loadExplainability(analysisId) {
+        // Mock explainability data - in real implementation, this would fetch from API
+        const mockData = {
+            reasoning: "Urgency pressure and impersonation keywords detected with repeated callback attempts. The call showed patterns consistent with known scam signatures including time-sensitive demands and authority impersonation.",
+            confidence: 87,
+            signals: [
+                { name: "Impersonation", level: "high" },
+                { name: "Urgency Pressure", level: "critical" },
+                { name: "Repeated Attempts", level: "medium" },
+                { name: "Voice Anomaly", level: "low" }
+            ]
+        };
+
+        const panel = document.getElementById('explainability-panel');
+        panel.innerHTML = `
+            <div style="height: 50%; border-bottom: 1px solid #374151; padding-bottom: 15px; margin-bottom: 15px;">
+                <h6 style="color: #e5e7eb; margin-bottom: 10px;">AI Reasoning</h6>
+                <p style="color: #e5e7eb; font-size: 14px; line-height: 1.5; margin: 0;">
+                    ${mockData.reasoning.replace('urgency pressure', '<span style="background: #f59e0b; color: black; padding: 2px 4px; border-radius: 3px;">urgency pressure</span>').replace('impersonation keywords', '<span style="background: #ef4444; color: white; padding: 2px 4px; border-radius: 3px;">impersonation keywords</span>')}
+                </p>
+            </div>
+            <div style="height: 50%;">
+                <h6 style="color: #e5e7eb; margin-bottom: 10px;">Confidence & Signals</h6>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small style="color: #9ca3af;">Confidence Level</small>
+                        <small style="color: #e5e7eb;">${mockData.confidence}%</small>
+                    </div>
+                    <div style="background: #374151; height: 8px; border-radius: 4px;">
+                        <div style="background: ${mockData.confidence > 80 ? '#22c55e' : mockData.confidence > 60 ? '#3b82f6' : '#9ca3af'}; height: 100%; width: ${mockData.confidence}%; border-radius: 4px;"></div>
+                    </div>
+                </div>
+                <div>
+                    <small style="color: #9ca3af; margin-bottom: 8px; display: block;">Detected Signals</small>
+                    ${mockData.signals.map(signal => `
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-${signal.level === 'critical' ? 'x-octagon' : signal.level === 'high' ? 'exclamation-triangle' : signal.level === 'medium' ? 'dash-circle' : 'check-circle'}" style="color: ${signal.level === 'critical' ? '#ef4444' : signal.level === 'high' ? '#f59e0b' : signal.level === 'medium' ? '#f59e0b' : '#22c55e'}; margin-right: 8px; font-size: 0.8rem;"></i>
+                            <small style="color: #e5e7eb;">${signal.name}</small>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+});
+</script>
+{% endblock %}

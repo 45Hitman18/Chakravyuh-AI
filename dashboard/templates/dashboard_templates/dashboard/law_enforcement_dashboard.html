@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+
+{% block title %}Law Enforcement Dashboard - Chakravyuh{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Leaflet for Maps -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="background: #0b1c2d; min-height: 100vh; padding-top: 64px; padding-left: 24px; padding-right: 24px;">
+    <!-- Page Title Section -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="fw-medium" style="color: #e5e7eb; font-size: 2rem; margin-bottom: 8px;">Law Enforcement Dashboard</h1>
+                <p style="color: #9ca3af; font-size: 1rem; margin: 0;">Jurisdiction-Based Case Overview</p>
+            </div>
+            <div>
+                <select class="form-select" style="background: #111827; border: 1px solid #374151; color: #e5e7eb; width: auto;">
+                    <option value="all">All India</option>
+                    <option value="maharashtra">Maharashtra</option>
+                    <option value="delhi">Delhi</option>
+                    <option value="karnataka">Karnataka</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 110px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Total Cases</div>
+                        <div class="h3 mb-0" style="color: #3b82f6;">{{ total_cases }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-folder" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 110px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Active Investigations</div>
+                        <div class="h3 mb-0" style="color: #f59e0b;">{{ active_cases }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-search" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 110px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">High Priority Cases</div>
+                        <div class="h3 mb-0" style="color: #ef4444;">{{ high_priority_cases }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px; height: 110px;">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <div class="small mb-1" style="color: white;">Escalations This Week</div>
+                        <div class="h3 mb-0" style="color: #22c55e;">{{ case_escalations }}</div>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-arrow-up-circle" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="row mb-4">
+        <!-- Left Column (65%) -->
+        <div class="col-md-8">
+            <!-- Case Activity Trend Chart -->
+            <div class="card mb-4" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">Case Activity Trends</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="caseActivityChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Cases Table -->
+            <div class="card mb-4" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #ffffff;">
+                    <h5 class="mb-0" style="font-weight: 600;">Recent Cases</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm mb-0" style="background: #111827;">
+                            <thead style="background: #1f2933; position: sticky; top: 0; z-index: 10;">
+                                <tr>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Case ID</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Region</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Priority</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Status</th>
+                                    <th style="color: #ffffff; border: none; padding: 12px; font-weight: 600;">Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody style="background: #111827;">
+                                {% for case in recent_cases %}
+                                <tr style="background: #1a2332; border-bottom: 1px solid #374151;">
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ case.id }}</td>
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ case.location|default:"Unknown" }}</td>
+                                    <td style="background: #1a2332; padding: 12px;">
+                                        <span class="badge" style="background: {% if case.priority == 'critical' %}#ef4444{% elif case.priority == 'high' %}#f97316{% elif case.priority == 'medium' %}#fbbf24{% else %}#22c55e{% endif %}; color: white; font-size: 0.7rem;">
+                                            {{ case.priority|default:"low"|title }}
+                                        </span>
+                                    </td>
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ case.get_status_display|default:"Active" }}</td>
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ case.updated_at|date:"M d, H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Uploads Table -->
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">Recent Uploads</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm mb-0" style="background: #111827;">
+                            <thead style="background: #1f2933; position: sticky; top: 0;">
+                                <tr>
+                                    <th style="color: #e5e7eb; border: none; padding: 12px;">Uploaded By</th>
+                                    <th style="color: #e5e7eb; border: none; padding: 12px;">Caller</th>
+                                    <th style="color: #e5e7eb; border: none; padding: 12px;">Recipient</th>
+                                    <th style="color: #e5e7eb; border: none; padding: 12px;">Uploaded At</th>
+                                </tr>
+                            </thead>
+                            <tbody style="background: #111827;">
+                                {% for upload in recent_uploads %}
+                                <tr style="background: #1a2332; border-bottom: 1px solid #374151;">
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ upload.uploaded_by.get_full_name|default:upload.uploaded_by.username }}</td>
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ upload.call_record.caller_number }}</td>
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ upload.call_record.recipient_number }}</td>
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ upload.uploaded_at|date:"M d, H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column (35%) -->
+        <div class="col-md-4">
+            <!-- Flagged Numbers Panel -->
+            <div class="card mb-4" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">Flagged Numbers</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm mb-0" style="background: #111827;">
+                            <thead style="background: #1f2933; position: sticky; top: 0;">
+                                <tr>
+                                    <th style="color: #e5e7eb; border: none; padding: 12px;">Number</th>
+                                    <th style="color: #e5e7eb; border: none; padding: 12px;">Reports</th>
+                                    <th style="color: #e5e7eb; border: none; padding: 12px;">Avg Risk</th>
+                                </tr>
+                            </thead>
+                            <tbody style="background: #111827;">
+                                {% for number in flagged_numbers %}
+                                <tr style="background: #1a2332; border-bottom: 1px solid #374151;">
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ number.call_record__caller_number }}</td>
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">{{ number.scam_count }}</td>
+                                    <td style="background: #1a2332; color: #ffffff; padding: 12px;">
+                                        {% if number.avg_score >= 0.8 %}
+                                            <span style="color: #ef4444;">{{ number.avg_score|floatformat:2 }}</span>
+                                        {% elif number.avg_score >= 0.5 %}
+                                            <span style="color: #f59e0b;">{{ number.avg_score|floatformat:2 }}</span>
+                                        {% else %}
+                                            <span style="color: #9ca3af;">{{ number.avg_score|floatformat:2 }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scam Type Distribution -->
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">Scam Type Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="scamTypeChart" style="max-height: 250px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Geographic Intelligence Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">Jurisdiction-Based Scam Activity Heatmap - India</h5>
+                </div>
+                <div class="card-body">
+                    <div id="indiaMap" style="height: 380px; border-radius: 8px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts & Notifications -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card" style="background: #111827; border: 1px solid #374151; border-radius: 12px;">
+                <div class="card-header" style="background: #1f2933; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                    <h5 class="mb-0">Alerts & Notifications</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                        {% for alert in recent_alerts %}
+                        <div class="list-group-item" style="background: transparent; border-bottom: 1px solid #374151; color: #e5e7eb;">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="small mb-1" style="color: #9ca3af;">{{ alert.title }}</div>
+                                    <div class="small" style="color: #9ca3af;">{{ alert.message }}</div>
+                                    <div class="small" style="color: #6b7280;">{{ alert.created_at|date:"M d, H:i" }}</div>
+                                </div>
+                                <div class="ms-2">
+                                    <span class="badge" style="background: {% if alert.priority == 'urgent' %}#ef4444{% elif alert.priority == 'warning' %}#f59e0b{% else %}#3b82f6{% endif %}; color: white; font-size: 0.7rem;">
+                                        {{ alert.priority|default:"info"|title }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4" style="color: #9ca3af;">
+                            <i class="bi bi-bell fs-2 mb-2"></i>
+                            <p class="mb-0 small">No recent alerts</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize case activity trend chart
+    const monthlyData = JSON.parse('{{ monthly_stats|escapejs }}');
+    const ctx = document.getElementById('caseActivityChart').getContext('2d');
+
+    // Prepare data
+    const labels = monthlyData.map(d => {
+        const date = new Date(d.month);
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+    });
+    const casesData = monthlyData.map(d => d.cases);
+    const scamsData = monthlyData.map(d => d.scams);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Cases',
+                data: casesData,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.1,
+                fill: false
+            }, {
+                label: 'Confirmed Scams',
+                data: scamsData,
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.1,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#9ca3af'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#374151'
+                    },
+                    ticks: {
+                        color: '#9ca3af'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: '#374151'
+                    },
+                    ticks: {
+                        color: '#9ca3af'
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    radius: 3
+                }
+            }
+        }
+    });
+
+    // Initialize scam type distribution chart
+    const scamTypesData = JSON.parse('{{ scam_types_stats|escapejs }}');
+    const ctx2 = document.getElementById('scamTypeChart').getContext('2d');
+
+    // Color mapping for scam types
+    const colorMap = {
+        'Phishing': '#3b82f6',
+        'Impersonation': '#f59e0b',
+        'Financial Fraud': '#ef4444',
+        'Others': '#9ca3af'
+    };
+
+    const backgroundColors = scamTypesData.map(d => colorMap[d.type] || '#9ca3af');
+
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: scamTypesData.map(d => d.type),
+            datasets: [{
+                data: scamTypesData.map(d => d.count),
+                backgroundColor: backgroundColors,
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#9ca3af'
+                    }
+                }
+            }
+        }
+    });
+
+    // Initialize India map
+    const map = L.map('indiaMap', {
+        scrollWheelZoom: false,
+        touchZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        doubleClickZoom: true,
+        dragging: true,
+        tap: false,
+        gestureHandling: false
+    }).setView([20.5937, 78.9629], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add heatmap data
+    const heatmapData = JSON.parse('{{ heatmap_data|escapejs }}');
+
+    if (heatmapData.length === 0) {
+        // Empty state
+        const mapContainer = document.getElementById('indiaMap');
+        mapContainer.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100"><div class="text-center text-muted"><i class="bi bi-geo-alt-fill fs-1 mb-3"></i><p>Heatmap will populate as scam data increases.</p></div></div>';
+        map.remove();
+    } else {
+        heatmapData.forEach(point => {
+            const density = point.active_cases > 20 ? 'high' : point.active_cases > 10 ? 'medium' : 'low';
+            const marker = L.circleMarker([point.lat, point.lng], {
+                color: density === 'high' ? '#ef4444' : density === 'medium' ? '#f59e0b' : '#eab308',
+                fillColor: density === 'high' ? '#ef4444' : density === 'medium' ? '#f59e0b' : '#eab308',
+                fillOpacity: 0.6,
+                radius: Math.sqrt(point.active_cases || point.count) * 3
+            }).addTo(map);
+
+            marker.bindPopup(`<b>${point.state}</b><br>Active Cases: ${point.active_cases}<br>High Priority: ${point.high_priority}`);
+        });
+    }
+});
+</script>
+{% endblock %}

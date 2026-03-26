@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Honeypot Reports - Chakravyuh{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="h4 mb-1">Honeypot Reports</h1>
+            <p class="text-muted mb-0">Summary of honeypot activity</p>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="p-3 border rounded">
+                        <div class="text-muted">Total Sessions</div>
+                        <div class="h5 mb-0">{{ stats.total_sessions }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded">
+                        <div class="text-muted">Active Sessions</div>
+                        <div class="h5 mb-0">{{ stats.active_sessions }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded">
+                        <div class="text-muted">Interactions</div>
+                        <div class="h5 mb-0">{{ stats.total_interactions }}</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded">
+                        <div class="text-muted">High Risk Scammers</div>
+                        <div class="h5 mb-0">{{ stats.high_risk_scammers }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <p class="text-muted mb-0">Detailed reports will appear here as data becomes available.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
