@@ -105,7 +105,4 @@ Visit `http://127.0.0.1:8000/` to initialize.
 
 ---
 
-## 🛡️ License
-Distributed under the MIT License. See `LICENSE` for more information.
 
-Developed with ⚡ by the **Chakravyuh Intelligence Team**.
